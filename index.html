@@ -265,7 +265,9 @@ function sendChat() {
   let reply = "That's interesting! Tell me more 😊";
 let text = input.value.toLowerCase();
 
-if (text.includes("hello") || text.includes("hi?"))
+if (text.includes("hello") || text.includes("hi"))
+  reply = "Hey there 👋 I'm Sandesh AI Assistant — ask me anything about the Sandesh app.";
+    if (text.includes("namaste") || text.includes("hii"))
   reply = "Hey there 👋 I'm Sandesh AI Assistant — ask me anything about the Sandesh app.";
 
 else if (text.includes("what is sandesh") || text.includes("about sandesh"))
@@ -374,3 +376,4 @@ else
 <!-- ===== End of Chat HTML ===== -->
 </body>
 </html>
+
