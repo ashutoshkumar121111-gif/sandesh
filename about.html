@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Ashu & Team</title>
+<style>
+    body { font-family: 'Arial', sans-serif; margin:0; padding:0; background:#f0f8ff; color:#333; }
+    header { background:#004247; color:white; text-align:center; padding:40px 20px; }
+    header h1 { margin:0; font-size:2.5em; }
+    .container { max-width:1200px; margin:40px auto; padding:0 20px; }
+    .profile, .team { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; }
+    .card { background:white; border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,0.1); padding:20px; width:300px; text-align:center; }
+    .card img { width:150px; height:150px; border-radius:50%; object-fit:cover; margin-bottom:15px; }
+    .card h3 { margin:10px 0 5px 0; }
+    .card p { font-size:0.95em; line-height:1.4em; }
+    .btn { padding:10px 20px; margin:5px; border:none; border-radius:5px; cursor:pointer; color:white; font-size:0.95em; }
+    .btn-view { background:#007bff; }
+    .btn-download { background:#28a745; }
+    .btn:hover { opacity:0.9; }
+    h2 { text-align:center; color:#004247; margin-bottom:30px; }
+    @media(max-width:768px){ .card{ width:90%; } .profile, .team{ flex-direction:column; align-items:center; } }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>About Ashu & Team</h1>
+</header>
+
+<div class="container">
+
+    <!-- Ashu Profile -->
+    <h2>Developer & Founder</h2>
+    <div class="profile">
+        <div class="card">
+            <img src="Ashu.webp" alt="Ashu Photo">
+            <h3>Ashutosh Kurmi</h3>
+            <p><strong>Age:</strong> 22<br>
+            <strong>Study:</strong> B.Tech CSE, 7th Semester<br>
+            <strong>Skills:</strong> Java, Android, Web Development, UI/UX Design</p>
+            <p>A passionate developer and entrepreneur. Built Sandesh app to make communication secure and personal. Loves innovation, coding, and clean design.</p>
+            <button class="btn btn-view" onclick="viewCV('ashu.pdf.pdf')">View CV</button>
+            <button class="btn btn-download" onclick="downloadCV('ashu.pdf.pdf')">Download CV</button>
+        </div>
+    </div>
+
+    <!-- Team Members -->
+    <h2>Our Team</h2>
+    <div class="team">
+        <!-- Team Member 1 -->
+        <div class="card">
+            <img src="ravi.jpg" alt="Ravi Photo">
+            <h3>Ravi Kumar</h3><p><strong>Age:</strong> 24<br>
+            <strong>Study:</strong> B.Tech CSE, 7th Semester<br>
+            <p><strong>Role:</strong> Backend Developer<br>
+            <strong>Skills:</strong> Node.js, Database Management, API Development</p>
+            <p>Ravi ensures server-side performance and security. Loves building scalable applications and solving complex problems.</p>
+            <button class="btn btn-view" onclick="viewCV('RAVI .pdf.pdf')">View CV</button>
+            <button class="btn btn-download" onclick="downloadCV('RAVI .pdf.pdf')">Download CV</button>
+        </div>
+
+        <!-- Team Member 2 -->
+        <div class="card">
+            <img src="ankit.jpg" alt="Ankit Photo">
+            <h3>Ankit Singh</h3><p><strong>Age:</strong> 22<br>
+            <strong>Study:</strong> B.Tech CSE, 7th Semester<br>
+            <p><strong>Role:</strong> UI/UX Designer<br>
+            <strong>Skills:</strong> Figma, Adobe XD, Web & App Design</p>
+            <p>Ankit designs beautiful interfaces ensuring user-friendly experience across all devices. Loves creative and minimal design.</p>
+            <button class="btn btn-view" onclick="viewCV('ankit.pdf')">View CV</button>
+            <button class="btn btn-download" onclick="downloadCV('ankit.pdf')">Download CV</button>
+        </div>
+
+       <!-- Team Member 3 -->
+<div class="card">
+    <img src="nandu.jpg" alt="Krishnandu Das Photo">
+    <h3>Krishnandu Das</h3><p><strong>Age:</strong> 22<br>
+            <strong>Study:</strong> B.Tech CSE, 7th Semester<br>
+    <p><strong>Role:</strong> Mobile Developer<br>
+    <strong>Skills:</strong> Android, Kotlin, Flutter</p>
+    <p>Krishnandu builds robust and efficient mobile apps. Focused on smooth performance and app scalability for users worldwide.</p>
+    <button class="btn btn-view" onclick="viewCV('nandu.pdf')">View CV</button>
+    <button class="btn btn-download" onclick="downloadCV('nandu.pdf')">Download CV</button>
+</div>
+    </div>
+
+</div>
+
+<script>
+function viewCV(file){
+    window.open(file, '_blank');
+}
+
+function downloadCV(file){
+    const link = document.createElement('a');
+    link.href = file;
+    link.download = file;
+    link.click();
+}
+</script>
+
+</body>
+</html>

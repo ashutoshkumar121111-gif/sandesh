@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en"></html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sandesh - Your Secure Messaging App</title>
+<meta name="description" content="Sandesh is a fast, secure messaging app for  communication. Chat, share, and connect effortlessly.">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f0f8ff; color: #333; }
+        header { background: linear-gradient(to right, #adfff7, #004247); color: white; text-align: center; padding: 50px 20px; }
+        .logo { font-size: 3em; font-weight: bold; margin-bottom: 10px; }
+        .hero h1 { font-size: 2.5em; margin: 0; }
+        .hero p { font-size: 1.2em; margin: 10px 0; }
+        .cta-button { background: #ff6b6beb; color: white; padding: 15px 30px; border: none; border-radius: 25px; font-size: 1.1em; cursor: pointer; text-decoration: none; display: inline-block; margin: 10px; }
+        section { padding: 50px 20px; max-width: 1200px; margin: 0 auto; }
+        .features { background: white; }
+        .features ul { list-style: none; padding: 0; }
+        .features li { margin: 20px 0; padding: 20px; border-left: 5px solid #00ffc8; background: #f8f9fa; }
+        .screenshots { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        .screenshot { max-width: 300px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        footer { background: #333333; color: white; text-align: center; padding: 20px; }
+        @media (max-width: 768px) { .logo { font-size: 2em; } .hero h1 { font-size: 2em; } .screenshots { flex-direction: column; align-items: center; } }
+        /* ===== Sandesh Floating AI Chat CSS ===== */
+.chat-icon {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: #007bff;
+  color: white;
+  border-radius: 50%;
+  font-size: 30px;
+  padding: 15px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transition: 0.3s;
+  z-index: 1000;
+}
+.chat-icon:hover { background: #0056b3; }
+
+.chat-window {
+  position: fixed;
+  bottom: 90px;
+  right: 25px;
+  width: 320px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 1001;
+  animation: fadeIn 0.3s ease-in-out;
+}
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(20px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+.chat-header {
+  background: #007bff;
+  color: white;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+}
+.chat-body {
+  height: 280px;
+  overflow-y: auto;
+  padding: 10px;
+  background: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+}
+.bot-msg, .user-msg {
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin: 8px 0;
+  display: inline-block;
+  max-width: 85%;
+}
+.bot-msg {
+  background: #d1e7dd;
+  color: #0f5132;
+  align-self: flex-start;
+}
+.user-msg {
+  background: #cfe2ff;
+  color: #084298;
+  align-self: flex-end;
+  float: right;
+}
+.chat-input {
+  display: flex;
+  border-top: 1px solid #ddd;
+}
+.chat-input input {
+  flex: 1;
+  border: none;
+  padding: 10px;
+  outline: none;
+}
+.chat-input button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+.chat-input button:hover { background: #0056b3; }
+/* ===== end of AI Chat CSS ===== */
+.cta-button:hover {
+  transform: scale(1.05);       /* Button thoda bada ho jaaye hover pe */
+  box-shadow: 0 8px 15px rgba(0,0,0,0.3);  /* Shadow appear ho */
+  transition: 0.3s;             /* Smooth transition */
+}
+    </style>
+</head>
+<!-- Animate.css for ready animations -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<!-- AOS for scroll animations -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+
+<!-- GSAP for advanced animations -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 1000, // 1 second
+    once: true // animation only once
+  });
+</script>
+<script>
+  AOS.init({
+    duration: 1200,   // animation duration
+    once: true,       // only once
+    easing: 'ease-in-out'
+  });
+
+</script>
+<body>
+    <!-- Animate.css for ready animations -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<!-- AOS for scroll animations -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+
+<!-- GSAP for advanced animations -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <header class="hero">
+    <div class="logo">
+      <img src="logo.png" alt="Sandesh" style="width: 100px; vertical-align:middle; margin-right:10px;">
+      <span>Sandesh</span>
+    </div> <!-- Placeholder for your heart icon; replace with <img src="logo.png" alt="Sandesh Logo"> -->
+        <h1>Connect with Sandesh</h1>
+        <p>Secure, fast messaging for your everyday chats. Built by Ashu.</p>
+        <a href="#download-info" class="cta-button">Download Now</a>
+        <a href="#features" class="cta-button" style="background: #28a745;">Learn More</a>
+    </header>
+    <section id="features" class="features" data-aos="fade-up">
+  <h2 style="text-align: center; color: #00ddff;">Key Features</h2>
+  <ul>
+    <li data-aos="fade-right" data-aos-delay="100"><strong>Easy Login & Signup:</strong> Use email or phone to get started quickly.</li>
+    <li data-aos="fade-right" data-aos-delay="200"><strong>Real-Time Chats:</strong> Search contacts, view recent messages, and reply instantly.</li>
+    <li data-aos="fade-right" data-aos-delay="300"><strong>Secure & Private:</strong> End-to-end encryption for all conversations.</li>
+    <li data-aos="fade-right" data-aos-delay="400"><strong>Intuitive Design:</strong> Clean interface with profile access and notifications.</li>
+    <li data-aos="fade-right" data-aos-delay="500"><strong>Cross-Platform:</strong> Available on iOS and Android.</li>
+  </ul>
+</section>
+    <section id="download-info" class="download-info">
+  <h2>Why Download Sandesh?</h2>
+  <p>
+   Sandesh was created with a simple mission — to make communication faster, safer, and truly ours.  
+    In today’s world, most chat apps are filled with ads, data tracking, and distractions.  
+    We wanted to build something clean, secure, and designed with privacy in mind.  
+    Sandesh is made by students, for everyone — connecting people with trust and simplicity. Sandesh isn’t just another chat app — it’s built by students who care about privacy, 
+    performance, and simplicity. By downloading Sandesh, you support innovation and
+    experience messaging made for you.
+  </p>
+  <a href="#" class="cta-button">Download for Free</a>
+</section>
+
+    <section id="screenshots">
+        <h2 style="text-align: center; color: #9e73ec;">See Sandesh in Action</h2>
+        <div class="screenshots">
+            <!-- Replace srcs with your image URLs -->
+            <img src="login.png.jpg" alt="Sandesh Login Screen" class="screenshot" data-aos="fade-up" data-aos-delay="200">
+             <img src="chat.jpg" alt="Sandesh Login Screen" class="screenshot" data-aos="fade-up" data-aos-delay="100">
+             <img src="inside.jpg" alt="Sandesh Login Screen" class="screenshot" data-aos="fade-up" data-aos-delay="100">
+<img src="Sandesh Login Screen.jpg" alt="Sandesh Chat Interface" class="screenshot" data-aos="fade-up" data-aos-delay="200">
+        </div>
+        <p style="text-align: center; margin-top: 30px;">Screenshots from the app – login securely and chat with friends like rohan, priya, akash, and more!</p>
+    </section>
+
+    <section id="download">
+        <h2 style="text-align: center; color: #007bff;">Get Started Today</h2>
+        <p style="text-align: center;">Follow us on social media.</p>
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="https://www.instagram.com/theashutoshraj_?igsh=ZWk1ODZnd3ZocThw" class="cta-button" style="background: #569958;">instagram</a>
+            <a href="https://www.facebook.com/profile.php?id=100017399625767" class="cta-button" style="background: #d400ff;">facebook</a>
+        </div>
+    </section>
+    <section class="mission">
+  <h2>Our Mission & Vision</h2>
+  <p>
+    Our mission is to empower people with a messaging platform that respects privacy, 
+    encourages real connections, and keeps communication simple.  
+    We believe messaging should be safe, fast, and truly yours.
+  </p>
+</section>
+<section class="team">
+  <h2>Meet the Developer</h2>
+  <p>
+    Sandesh is built by <strong>Ashu</strong>, a passionate Computer Science student and creator 
+    who believes in innovation through simplicity.  
+    Inspired by secure communication and clean design, Ashu developed Sandesh as a 
+    project to make chatting better and more personal.
+  </p>
+  <a href="https://www.instagram.com/theashutoshraj_?igsh=ZWk1ODZnd3ZocThw" target="_blank">Follow Ashu on Instagram</a><br><br>
+  <a href="about.html" class="cta-button" style="background:#007bff;">Learn More About Me</a>
+</section>
+
+    <footer>
+        <p>&copy; 2025 Sandesh. Created by Ashu and team. All rights reserved.</p>
+        <p>Contact: || ashutoshkumar121111@gmail.com || 
+    </footer>
+
+    <script>
+        // Simple smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
+    <!-- ===== Sandesh AI Chat JavaScript ===== -->
+<script>
+function toggleChat() {
+  const chat = document.getElementById("chatWindow");
+  if (chat.style.display === "flex") {
+    chat.style.display = "none";
+  } else {
+    chat.style.display = "flex";
+    chat.style.flexDirection = "column";
+  }
+}
+
+function sendChat() {
+  let input = document.getElementById("userMsg");
+  let chatBody = document.getElementById("chatBody");
+  if (!input || input.value.trim() === "") return;
+
+  // user message
+  let userDiv = document.createElement("div");
+  userDiv.className = "user-msg";
+  userDiv.textContent = input.value;
+  chatBody.appendChild(userDiv);
+
+  // bot reply logic
+  let reply = "That's interesting! Tell me more 😊";
+  let text = input.value.toLowerCase();
+  if (text.includes("hello") || text.includes("hi")) reply = "Hey there 👋 How can I assist you today?";
+  if (text.includes("download")) reply = "You can download Sandesh from the top 'Download' button.";
+  if (text.includes("secure") || text.includes("privacy")) reply = "Yes! Sandesh uses strong encryption 🔒";
+  if (text.includes("bye") || text.includes("thanks")) reply = "Goodbye 👋 Have a great day!";
+
+  setTimeout(() => {
+    let botDiv = document.createElement("div");
+    botDiv.className = "bot-msg";
+    botDiv.textContent = reply;
+    chatBody.appendChild(botDiv);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }, 500);
+
+  input.value = "";
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+</script>
+<!-- ===== End of Chat JS ===== -->
+    <!-- ===== Sandesh Floating AI Chat HTML ===== -->
+<div class="chat-icon" onclick="toggleChat()">🤖</div>
+
+<div class="chat-window" id="chatWindow">
+  <div class="chat-header">
+    <h4 style="margin:0;">Sandesh AI Assistant</h4>
+    <span style="cursor:pointer;" onclick="toggleChat()">✖</span>
+  </div>
+  <div class="chat-body" id="chatBody">
+    <div class="bot-msg">Hi! 👋 I’m Sandesh Assistant. How can I help you today?</div>
+  </div>
+  <div class="chat-input">
+    <input type="text" id="userMsg" placeholder="Type a message..." onkeydown="if(event.key==='Enter'){sendChat()}">
+    <button onclick="sendChat()">Send</button>
+  </div>
+</div>
+<!-- ===== End of Chat HTML ===== -->
+</body>
+</html>
