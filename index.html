@@ -153,7 +153,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
   <header class="hero">
     <div class="logo">
-      <img src="logo.png" alt="Sandesh" style="width: 100px; vertical-align:middle; margin-right:10px;">
+      <img src="logo.png" alt="Sandesh" style="width: 70px; vertical-align:middle; margin-right:10px;">
       <span>Sandesh</span>
     </div> <!-- Placeholder for your heart icon; replace with <img src="logo.png" alt="Sandesh Logo"> -->
         <h1>Connect with Sandesh</h1>
@@ -263,12 +263,85 @@ function sendChat() {
 
   // bot reply logic
   let reply = "That's interesting! Tell me more 😊";
-  let text = input.value.toLowerCase();
-  if (text.includes("hello") || text.includes("hi")) reply = "Hey there 👋 How can I assist you today?";
-  if (text.includes("download")) reply = "You can download Sandesh from the top 'Download' button.";
-  if (text.includes("secure") || text.includes("privacy")) reply = "Yes! Sandesh uses strong encryption 🔒";
-  if (text.includes("bye") || text.includes("thanks")) reply = "Goodbye 👋 Have a great day!";
+let text = input.value.toLowerCase();
 
+if (text.includes("hello") || text.includes("hi?"))
+  reply = "Hey there 👋 I'm Sandesh AI Assistant — ask me anything about the Sandesh app.";
+
+else if (text.includes("what is sandesh") || text.includes("about sandesh"))
+  reply = "Sandesh is a secure, ad-free messaging app created by Ashu for fast, private communication 🔒💬";
+
+else if (text.includes("who is ashu") || text.includes("ashu developer"))
+  reply = "Ashu is the developer of Sandesh — a passionate Computer Science student who built this app from scratch 🚀";
+  
+
+else if (text.includes("team") || text.includes("developer team"))
+  reply = "The Sandesh team includes Ashu and Krishnandu Das and ankit ravi on design and development 👨‍💻👨‍🎨";
+
+else if (text.includes("features") || text.includes("functions"))
+  reply = "Sandesh offers end-to-end encryption, real-time messaging, cross-platform support, and a clean UI 📱✨";
+
+else if (text.includes("download") || text.includes("install"))
+  reply = "You can download Sandesh soon! For now, follow updates from Ashu’s social media 📲";
+
+else if (text.includes("safe") || text.includes("secure") || text.includes("privacy"))
+  reply = "Yes! Sandesh uses advanced encryption to keep all your chats private and secure 🔐";
+
+else if (text.includes("contact") || text.includes("email"))
+  reply = "You can contact Ashu at ashutoshkumar121111@gmail.com 📧";
+
+else if (text.includes("vision") || text.includes("mission"))
+  reply = "Sandesh’s mission is to build a private, simple, and fast messaging experience for everyone 🌍❤";
+
+else if (text.includes("bye") || text.includes("thanks") || text.includes("goodbye"))
+  reply = "bye 👋 Have a great day! And remember — privacy matters! 🔒";
+
+  else if (text.includes("who are you"))
+  reply = "I’m Sandesh Assistant 🤖. I can answer questions about the Sandesh app and its developer Ashu.";
+
+  else if (text.includes("who is ankit"))
+  reply = "ankit is the developer of Sandesh — a passionate Computer Science student .";
+else if (text.includes("who is krishnandu"))
+  reply = "nandu is the developer of Sandesh — a passionate Computer Science student .";
+else if (text.includes("who is ravi"))
+  reply = "ravi is the developer of Sandesh — a passionate Computer Science student .";
+
+
+else if (text.includes("launch") || text.includes("release") || text.includes("available"))
+  reply = "Sandesh is in development. Official release will be announced on Ashu’s social media 📢.";
+
+else if (text.includes("logo") || text.includes("design"))
+  reply = "The logo and UI were designed by Ashu, while Ashu handled coding and logic 🎨💻.";
+
+else if (text.includes("difference") || text.includes("whatsapp") || text.includes("telegram"))
+  reply = "Sandesh focuses on privacy, no ads, and simple UI, unlike other apps 🔐✨.";
+
+else if (text.includes("group") || text.includes("group chat"))
+  reply = "Yes, group chat support is planned for upcoming updates 👥💬.";
+
+else if (text.includes("pc") || text.includes("computer"))
+  reply = "Currently Sandesh is mobile-only, but a web/PC version is planned 💻📱.";
+
+else if (text.includes("free") || text.includes("price"))
+  reply = "Sandesh is completely free — no ads, no hidden charges 💸.";
+
+else if (text.includes("join") || text.includes("collaborate") || text.includes("hiring"))
+  reply = "You can contact Ashu to collaborate or join the project 🤝.";
+
+else if (text.includes("website") || text.includes("link"))
+  reply = "You’re already on the official Sandesh website 🌐.";
+
+else if (text.includes("inspired") || text.includes("motivation"))
+  reply = "Ashu was inspired by privacy-focused apps and wanted to create something original 💡.";
+
+else if (text.includes("open source"))
+  reply = "Currently, Sandesh is not open source, but parts may be released for learning 📚.";
+
+else if (text.includes("update") || text.includes("future"))
+  reply = "Future updates will include dark mode, improved AI chat, and group features ✨.";
+
+else
+  reply = "Hmm 🤔 I’m not sure about that yet, but I’ll learn soon! Ask me something about Sandesh or its creator.";
   setTimeout(() => {
     let botDiv = document.createElement("div");
     botDiv.className = "bot-msg";
