@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | Sandesh Web</title>
+<style>
+  :root{
+    --purple-1:#6a3df5; --purple-2:#8a4dff; --pink-1:#ff5fa2;
+    --bg-lav:#f4f1ff; --ink:#1c1533; --muted:#6b6480; --card:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Segoe UI', Arial, sans-serif; color:var(--ink);
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg,#ede7ff,#fff0f6);
+    padding:20px;
+  }
+  .auth-card{
+    background:var(--card); border-radius:24px; padding:40px 36px; width:100%; max-width:400px;
+    box-shadow:0 20px 50px rgba(90,50,180,.18);
+  }
+  .brand{display:flex; align-items:center; justify-content:center; gap:10px; font-weight:800; font-size:1.4em; margin-bottom:8px;}
+  .brand img{width:36px; height:36px; object-fit:contain;}
+  .subtitle{text-align:center; color:var(--muted); font-size:.9em; margin-bottom:28px;}
+  .tabs{display:flex; background:#f4f1ff; border-radius:14px; padding:4px; margin-bottom:24px;}
+  .tab{flex:1; text-align:center; padding:10px; border-radius:10px; cursor:pointer; font-weight:700; font-size:.9em; color:var(--muted); transition:.2s;}
+  .tab.active{background:#fff; color:var(--purple-1); box-shadow:0 4px 12px rgba(90,50,180,.12);}
+  label{display:block; font-size:.82em; font-weight:700; color:var(--muted); margin-bottom:6px;}
+  input{
+    width:100%; padding:12px 14px; border:1.5px solid #e3ddf5; border-radius:12px;
+    margin-bottom:16px; font-size:.95em; outline:none; transition:.2s;
+  }
+  input:focus{border-color:var(--purple-1);}
+  .btn-primary{
+    width:100%; padding:13px; border:none; border-radius:14px; font-weight:700; font-size:1em;
+    background:linear-gradient(135deg,var(--purple-1),var(--pink-1)); color:#fff; cursor:pointer;
+    box-shadow:0 10px 24px rgba(122,61,245,.35); transition:.25s;
+  }
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-primary:disabled{opacity:.6; cursor:not-allowed; transform:none;}
+  .error-msg{background:#ffe4ea; color:#c0264a; font-size:.85em; padding:10px 14px; border-radius:10px; margin-bottom:14px; display:none;}
+  .back-link{display:block; text-align:center; margin-top:20px; font-size:.85em; color:var(--purple-1); font-weight:700; text-decoration:none;}
+  .form-panel{display:none;}
+  .form-panel.active{display:block;}
+  .social-divider{display:flex; align-items:center; gap:12px; margin:18px 0; color:var(--muted); font-size:.82em;}
+  .social-divider::before, .social-divider::after{content:''; flex:1; height:1px; background:#e3ddf5;}
+  .btn-google{
+    width:100%; padding:12px; border-radius:14px; border:1.5px solid #e3ddf5; background:#fff;
+    display:flex; align-items:center; justify-content:center; gap:10px; font-weight:700; font-size:.92em;
+    color:var(--ink); cursor:pointer; transition:.2s;
+  }
+  .btn-google:hover{border-color:var(--purple-1); background:#faf8ff;}
+  .photo-upload-wrap{display:flex; justify-content:center; margin-bottom:20px;}
+  .photo-circle{
+    width:90px; height:90px; border-radius:50%; background:#f4f1ff; border:2px dashed #cdbdf7;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; overflow:hidden;
+    text-align:center; color:var(--purple-1); font-size:.75em; transition:.2s;
+  }
+  .photo-circle:hover{border-color:var(--purple-1); background:#ede4ff;}
+  .photo-circle img{width:100%; height:100%; object-fit:cover;}
+</style>
+</head>
+<body>
+
+  <div class="auth-card">
+    <div class="brand"><img src="logo.png" alt="Sandesh"> Sandesh</div>
+    <p class="subtitle">Login to start chatting in real time.</p>
+
+    <div class="tabs">
+      <div class="tab active" id="tabLogin" onclick="switchTab('login')">Login</div>
+      <div class="tab" id="tabSignup" onclick="switchTab('signup')">Sign Up</div>
+      <div class="tab" id="tabPhone" onclick="switchTab('phone')">Phone</div>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <!-- Login Form -->
+    <div class="form-panel active" id="loginPanel">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="you@example.com">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••">
+      <button class="btn-primary" id="loginBtn" onclick="doLogin()">Login</button>
+    </div>
+
+    <!-- Signup Form -->
+    <div class="form-panel" id="signupPanel">
+      <div class="photo-upload-wrap">
+        <label class="photo-circle" for="signupPhoto">
+          <img id="signupPhotoPreview" src="" alt="" style="display:none;">
+          <span id="photoPlaceholder">📷<br><small>Add Photo</small></span>
+        </label>
+        <input type="file" id="signupPhoto" accept="image/*" style="display:none;">
+      </div>
+      <label>Full Name</label>
+      <input type="text" id="signupName" placeholder="Your name">
+      <label>Username</label>
+      <input type="text" id="signupUsername" placeholder="e.g. ashu (without @)">
+      <label>Email</label>
+      <input type="email" id="signupEmail" placeholder="you@example.com">
+      <label>Password</label>
+      <input type="password" id="signupPassword" placeholder="Min 6 characters">
+      <button class="btn-primary" id="signupBtn" onclick="doSignup()">Create Account</button>
+    </div>
+
+    <!-- Phone Login Form -->
+    <div class="form-panel" id="phonePanel">
+      <div id="phoneStep1">
+        <label>Phone Number</label>
+        <input type="tel" id="phoneNumber" placeholder="+91 98765 43210">
+        <button class="btn-primary" id="sendOtpBtn" onclick="sendOtp()">Send OTP</button>
+        <div id="recaptcha-container" style="margin-top:12px;"></div>
+      </div>
+      <div id="phoneStep2" style="display:none;">
+        <label>Enter OTP</label>
+        <input type="text" id="otpInput" placeholder="6-digit code" maxlength="6">
+        <button class="btn-primary" id="verifyOtpBtn" onclick="verifyOtp()">Verify & Continue</button>
+      </div>
+    </div>
+
+    <!-- Google Sign-In (works for both login and signup) -->
+    <div class="social-divider" id="socialDivider"><span>or</span></div>
+    <button class="btn-google" id="googleBtn" onclick="doGoogleLogin()">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5h-1.9V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.1 8 3l6-6C34.9 5.1 29.7 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.1 8 3l6-6C34.9 5.1 29.7 3 24 3 15.9 3 8.9 7.6 6.3 14.7z"/><path fill="#4CAF50" d="M24 45c5.6 0 10.7-2.1 14.5-5.6l-6.7-5.5C29.7 35.7 27 36.7 24 36.7c-5.2 0-9.6-3.3-11.3-7.9l-6.6 5.1C8.9 40.4 15.9 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H24v8h11.3c-.8 2.3-2.2 4.3-4 5.8l6.7 5.5C41.6 36.6 45 30.9 45 24c0-1.2-.1-2.4-.4-3.5z"/></svg>
+      Continue with Google
+    </button>
+
+    <a href="index.html" class="back-link">← Back to Home</a>
+  </div>
+
+  <!-- ===== UI logic (works even without a server / before Firebase is set up) ===== -->
+  <script>
+    function switchTab(tab){
+      document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+      document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
+      document.getElementById('tabPhone').classList.toggle('active', tab === 'phone');
+      document.getElementById('loginPanel').classList.toggle('active', tab === 'login');
+      document.getElementById('signupPanel').classList.toggle('active', tab === 'signup');
+      document.getElementById('phonePanel').classList.toggle('active', tab === 'phone');
+      document.getElementById('socialDivider').style.display = (tab === 'phone') ? 'none' : 'flex';
+      document.getElementById('googleBtn').style.display = (tab === 'phone') ? 'none' : 'flex';
+      hideError();
+    }
+
+    function showError(msg){
+      const el = document.getElementById('errorMsg');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+    function hideError(){
+      document.getElementById('errorMsg').style.display = 'none';
+    }
+
+    const signupPhotoInput = document.getElementById('signupPhoto');
+    const photoPreview = document.getElementById('signupPhotoPreview');
+    const photoPlaceholder = document.getElementById('photoPlaceholder');
+    signupPhotoInput.addEventListener('change', () => {
+      const file = signupPhotoInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        photoPreview.src = e.target.result;
+        photoPreview.style.display = 'block';
+        photoPlaceholder.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    });
+  </script>
+
+  <!-- ===== Firebase SDK (requires the file to be served over http/https — -->
+  <!-- won't run if you just double-click and open this file directly)     -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+      updateProfile, onAuthStateChanged, GoogleAuthProvider, signInWithPopup,
+      RecaptchaVerifier, signInWithPhoneNumber
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, doc, setDoc, getDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      getStorage, ref, uploadBytes, getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+    // =========================================================
+    // 🔧 PASTE YOUR FIREBASE CONFIG HERE (same project as the app)
+    // Firebase Console → Project Settings → General → Your apps → SDK setup
+
+    // =========================================================
+        const firebaseConfig = {
+      apiKey: "AIzaSyBE0CmXkQr_LV1YU7y1MpkKUrCr_i9ZD9E",
+      authDomain: "sandesh-ff5ff.firebaseapp.com",
+      databaseURL: "https://sandesh-ff5ff-default-rtdb.firebaseio.com",
+      projectId: "sandesh-ff5ff",
+      storageBucket: "sandesh-ff5ff.firebasestorage.app",
+      messagingSenderId: "642211479662",
+      appId: "1:642211479662:web:1eb6f4d34a61d076b3a67f",
+      measurementId: "G-40WGJPN5ND"
+    };
+
+    let app, auth, db, storage, firebaseReady = false;
+    try{
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
+      storage = getStorage(app);
+      firebaseReady = true;
+    }catch(err){
+      console.error("Firebase not configured yet:", err);
+      showError("⚠️ Firebase isn't connected yet — paste your Firebase config in login.html to enable login/signup.");
+    }
+
+    window.doLogin = async function(){
+      hideError();
+      if (!firebaseReady){ showError("⚠️ Firebase isn't connected yet. Paste your config in login.html first."); return; }
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      if (!email || !password){ showError("Please fill in both fields."); return; }
+
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = true; btn.textContent = "Logging in...";
+      try{
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "chat.html";
+      }catch(err){
+        showError(friendlyError(err.code));
+      }finally{
+        btn.disabled = false; btn.textContent = "Login";
+      }
+    };
+
+    window.doSignup = async function(){
+      hideError();
+      if (!firebaseReady){ showError("⚠️ Firebase isn't connected yet. Paste your config in login.html first."); return; }
+      const name = document.getElementById('signupName').value.trim();
+      const username = document.getElementById('signupUsername').value.trim().replace(/^@/, '');
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value;
+      if (!name || !username || !email || !password){ showError("Please fill in all fields."); return; }
+      if (password.length < 6){ showError("Password must be at least 6 characters."); return; }
+
+      const btn = document.getElementById('signupBtn');
+      btn.disabled = true; btn.textContent = "Creating account...";
+      try{
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(cred.user, { displayName: name });
+
+        // Upload profile photo to Firebase Storage, if one was chosen
+        let photoURL = "";
+        const file = signupPhotoInput.files[0];
+        if (file){
+          btn.textContent = "Uploading photo...";
+          const photoRef = ref(storage, `profile_photos/${cred.user.uid}.jpg`);
+          await uploadBytes(photoRef, file);
+          photoURL = await getDownloadURL(photoRef);
+          await updateProfile(cred.user, { photoURL });
+        }
+
+        btn.textContent = "Creating account...";
+        // Create matching user doc in Firestore (same schema your mobile app uses,
+        // adjust field names below if your app's "users" collection differs)
+        await setDoc(doc(db, "users", cred.user.uid), {
+          name: name,
+          username: username,
+          email: email,
+          photoURL: photoURL,
+          online: true,
+          createdAt: serverTimestamp()
+        });
+        window.location.href = "chat.html";
+      }catch(err){
+        showError(friendlyError(err.code));
+      }finally{
+        btn.disabled = false; btn.textContent = "Create Account";
+      }
+    };
+
+    function friendlyError(code){
+      const map = {
+        "auth/invalid-email": "That email address looks invalid.",
+        "auth/user-not-found": "No account found with this email.",
+        "auth/wrong-password": "Incorrect password.",
+        "auth/email-already-in-use": "An account already exists with this email.",
+        "auth/weak-password": "Password is too weak (min 6 characters).",
+        "auth/invalid-credential": "Incorrect email or password."
+      };
+      return map[code] || "Something went wrong. Please try again.";
+    }
+
+    // ---- Google Sign-In ----
+    window.doGoogleLogin = async function(){
+      hideError();
+      if (!firebaseReady){ showError("⚠️ Firebase isn't connected yet. Paste your config in login.html first."); return; }
+      const btn = document.getElementById('googleBtn');
+      btn.disabled = true;
+      try{
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        // Create the user doc if this is their first time signing in
+        const userRef = doc(db, "users", user.uid);
+        const existing = await getDoc(userRef);
+        if (!existing.exists()){
+          await setDoc(userRef, {
+            name: user.displayName || "New User",
+            username: (user.email || "user").split('@')[0],
+            email: user.email || "",
+            photoURL: user.photoURL || "",
+            online: true,
+            createdAt: serverTimestamp()
+          });
+        }
+        window.location.href = "chat.html";
+      }catch(err){
+        console.error(err);
+        showError("Google sign-in failed. Please try again.");
+      }finally{
+        btn.disabled = false;
+      }
+    };
+
+    // ---- Phone Number Login (OTP) ----
+    let confirmationResult = null;
+
+    window.sendOtp = async function(){
+      hideError();
+      if (!firebaseReady){ showError("⚠️ Firebase isn't connected yet. Paste your config in login.html first."); return; }
+      const phone = document.getElementById('phoneNumber').value.trim();
+      if (!phone || !phone.startsWith('+')){
+        showError("Enter phone number with country code, e.g. +91 98765 43210");
+        return;
+      }
+
+      const btn = document.getElementById('sendOtpBtn');
+      btn.disabled = true; btn.textContent = "Sending...";
+      try{
+        if (!window.recaptchaVerifier){
+          window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'normal' });
+        }
+        confirmationResult = await signInWithPhoneNumber(auth, phone, window.recaptchaVerifier);
+        document.getElementById('phoneStep1').style.display = 'none';
+        document.getElementById('phoneStep2').style.display = 'block';
+      }catch(err){
+        console.error(err);
+        showError("Could not send OTP. Check the phone number and try again.");
+      }finally{
+        btn.disabled = false; btn.textContent = "Send OTP";
+      }
+    };
+
+    window.verifyOtp = async function(){
+      hideError();
+      const code = document.getElementById('otpInput').value.trim();
+      if (!code || !confirmationResult){ showError("Please request an OTP first."); return; }
+
+      const btn = document.getElementById('verifyOtpBtn');
+      btn.disabled = true; btn.textContent = "Verifying...";
+      try{
+        const result = await confirmationResult.confirm(code);
+        const user = result.user;
+
+        const userRef = doc(db, "users", user.uid);
+        const existing = await getDoc(userRef);
+        if (!existing.exists()){
+          await setDoc(userRef, {
+            name: "New User",
+            username: "user" + user.uid.slice(0, 5),
+            phone: user.phoneNumber || "",
+            photoURL: "",
+            online: true,
+            createdAt: serverTimestamp()
+          });
+        }
+        window.location.href = "chat.html";
+      }catch(err){
+        console.error(err);
+        showError("Incorrect OTP. Please try again.");
+      }finally{
+        btn.disabled = false; btn.textContent = "Verify & Continue";
+      }
+    };
+
+    // If already logged in, skip straight to chat
+    if (firebaseReady){
+      onAuthStateChanged(auth, (user) => {
+        if (user) window.location.href = "chat.html";
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,379 +1,759 @@
 <!DOCTYPE html>
-<html lang="en"></html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sandesh - Your Secure Messaging App</title>
-<meta name="description" content="Sandesh is a fast, secure messaging app for  communication. Chat, share, and connect effortlessly.">
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f0f8ff; color: #333; }
-        header { background: linear-gradient(to right, #adfff7, #004247); color: white; text-align: center; padding: 50px 20px; }
-        .logo { font-size: 3em; font-weight: bold; margin-bottom: 10px; }
-        .hero h1 { font-size: 2.5em; margin: 0; }
-        .hero p { font-size: 1.2em; margin: 10px 0; }
-        .cta-button { background: #ff6b6beb; color: white; padding: 15px 30px; border: none; border-radius: 25px; font-size: 1.1em; cursor: pointer; text-decoration: none; display: inline-block; margin: 10px; }
-        section { padding: 50px 20px; max-width: 1200px; margin: 0 auto; }
-        .features { background: white; }
-        .features ul { list-style: none; padding: 0; }
-        .features li { margin: 20px 0; padding: 20px; border-left: 5px solid #00ffc8; background: #f8f9fa; }
-        .screenshots { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-        .screenshot { max-width: 300px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        footer { background: #333333; color: white; text-align: center; padding: 20px; }
-        @media (max-width: 768px) { .logo { font-size: 2em; } .hero h1 { font-size: 2em; } .screenshots { flex-direction: column; align-items: center; } }
-        /* ===== Sandesh Floating AI Chat CSS ===== */
-.chat-icon {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  background: #007bff;
-  color: white;
-  border-radius: 50%;
-  font-size: 30px;
-  padding: 15px;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  transition: 0.3s;
-  z-index: 1000;
-}
-.chat-icon:hover { background: #0056b3; }
-
-.chat-window {
-  position: fixed;
-  bottom: 90px;
-  right: 25px;
-  width: 320px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  display: none;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: 1001;
-  animation: fadeIn 0.3s ease-in-out;
-}
-@keyframes fadeIn {
-  from {opacity: 0; transform: translateY(20px);}
-  to {opacity: 1; transform: translateY(0);}
-}
-.chat-header {
-  background: #007bff;
-  color: white;
-  padding: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: bold;
-}
-.chat-body {
-  height: 280px;
-  overflow-y: auto;
-  padding: 10px;
-  background: #f9f9f9;
-  display: flex;
-  flex-direction: column;
-}
-.bot-msg, .user-msg {
-  padding: 8px 12px;
-  border-radius: 10px;
-  margin: 8px 0;
-  display: inline-block;
-  max-width: 85%;
-}
-.bot-msg {
-  background: #d1e7dd;
-  color: #0f5132;
-  align-self: flex-start;
-}
-.user-msg {
-  background: #cfe2ff;
-  color: #084298;
-  align-self: flex-end;
-  float: right;
-}
-.chat-input {
-  display: flex;
-  border-top: 1px solid #ddd;
-}
-.chat-input input {
-  flex: 1;
-  border: none;
-  padding: 10px;
-  outline: none;
-}
-.chat-input button {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  cursor: pointer;
-}
-.chat-input button:hover { background: #0056b3; }
-/* ===== end of AI Chat CSS ===== */
-.cta-button:hover {
-  transform: scale(1.05);       /* Button thoda bada ho jaaye hover pe */
-  box-shadow: 0 8px 15px rgba(0,0,0,0.3);  /* Shadow appear ho */
-  transition: 0.3s;             /* Smooth transition */
-}
-    </style>
-</head>
-<!-- Animate.css for ready animations -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-
-<!-- AOS for scroll animations -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
-
-<!-- GSAP for advanced animations -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-<script>
-  AOS.init({
-    duration: 1000, // 1 second
-    once: true // animation only once
-  });
-</script>
-<script>
-  AOS.init({
-    duration: 1200,   // animation duration
-    once: true,       // only once
-    easing: 'ease-in-out'
-  });
-
-</script>
-<body>
-    <!-- Animate.css for ready animations -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-
-<!-- AOS for scroll animations -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
-
-<!-- GSAP for advanced animations -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-  <header class="hero">
-    <div class="logo">
-      <img src="logo.png" alt="Sandesh" style="width: 70px; vertical-align:middle; margin-right:10px;">
-      <span>Sandesh</span>
-    </div> <!-- Placeholder for your heart icon; replace with <img src="logo.png" alt="Sandesh Logo"> -->
-        <h1>Connect with Sandesh</h1>
-        <p>Secure, fast messaging for your everyday chats. Built by Ashu.</p>
-        <a href="#download-info" class="cta-button">Download Now</a>
-        <a href="#features" class="cta-button" style="background: #28a745;">Learn More</a>
-    </header>
-    <section id="features" class="features" data-aos="fade-up">
-  <h2 style="text-align: center; color: #00ddff;">Key Features</h2>
-  <ul>
-    <li data-aos="fade-right" data-aos-delay="100"><strong>Easy Login & Signup:</strong> Use email or phone to get started quickly.</li>
-    <li data-aos="fade-right" data-aos-delay="200"><strong>Real-Time Chats:</strong> Search contacts, view recent messages, and reply instantly.</li>
-    <li data-aos="fade-right" data-aos-delay="300"><strong>Secure & Private:</strong> End-to-end encryption for all conversations.</li>
-    <li data-aos="fade-right" data-aos-delay="400"><strong>Intuitive Design:</strong> Clean interface with profile access and notifications.</li>
-    <li data-aos="fade-right" data-aos-delay="500"><strong>Cross-Platform:</strong> Available on iOS and Android.</li>
-  </ul>
-</section>
-    <section id="download-info" class="download-info">
-  <h2>Why Download Sandesh?</h2>
-  <p>
-   Sandesh was created with a simple mission — to make communication faster, safer, and truly ours.  
-    In today’s world, most chat apps are filled with ads, data tracking, and distractions.  
-    We wanted to build something clean, secure, and designed with privacy in mind.  
-    Sandesh is made by students, for everyone — connecting people with trust and simplicity. Sandesh isn’t just another chat app — it’s built by students who care about privacy, 
-    performance, and simplicity. By downloading Sandesh, you support innovation and
-    experience messaging made for you.
-  </p>
-  <a href="#" class="cta-button">Download for Free</a>
-</section>
-
-    <section id="screenshots">
-        <h2 style="text-align: center; color: #9e73ec;">See Sandesh in Action</h2>
-        <div class="screenshots">
-            <!-- Replace srcs with your image URLs -->
-            <img src="login.png.jpg" alt="Sandesh Login Screen" class="screenshot" data-aos="fade-up" data-aos-delay="200">
-             <img src="chat.jpg" alt="Sandesh Login Screen" class="screenshot" data-aos="fade-up" data-aos-delay="100">
-             <img src="inside.jpg" alt="Sandesh Login Screen" class="screenshot" data-aos="fade-up" data-aos-delay="100">
-<img src="Sandesh Login Screen.jpg" alt="Sandesh Chat Interface" class="screenshot" data-aos="fade-up" data-aos-delay="200">
-        </div>
-        <p style="text-align: center; margin-top: 30px;">Screenshots from the app – login securely and chat with friends like rohan, priya, akash, and more!</p>
-    </section>
-
-    <section id="download">
-        <h2 style="text-align: center; color: #007bff;">Get Started Today</h2>
-        <p style="text-align: center;">Follow us on social media.</p>
-        <div style="text-align: center; margin: 30px 0;">
-            <a href="https://www.instagram.com/theashutoshraj_?igsh=ZWk1ODZnd3ZocThw" class="cta-button" style="background: #569958;">instagram</a>
-            <a href="https://www.facebook.com/profile.php?id=100017399625767" class="cta-button" style="background: #d400ff;">facebook</a>
-        </div>
-    </section>
-    <section class="mission">
-  <h2>Our Mission & Vision</h2>
-  <p>
-    Our mission is to empower people with a messaging platform that respects privacy, 
-    encourages real connections, and keeps communication simple.  
-    We believe messaging should be safe, fast, and truly yours.
-  </p>
-</section>
-<section class="team">
-  <h2>Meet the Developer</h2>
-  <p>
-    Sandesh is built by <strong>Ashu</strong>, a passionate Computer Science student and creator 
-    who believes in innovation through simplicity.  
-    Inspired by secure communication and clean design, Ashu developed Sandesh as a 
-    project to make chatting better and more personal.
-  </p>
-  <a href="https://www.instagram.com/theashutoshraj_?igsh=ZWk1ODZnd3ZocThw" target="_blank">Follow Ashu on Instagram</a><br><br>
-  <a href="about.html" class="cta-button" style="background:#007bff;">Learn More About Me</a>
-</section>
-
-    <footer>
-        <p>&copy; 2025 Sandesh. Created by Ashu and team. All rights reserved.</p>
-        <p>Contact: || ashutoshkumar121111@gmail.com || 
-    </footer>
-
-    <script>
-        // Simple smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
-            });
-        });
-    </script>
-    <!-- ===== Sandesh AI Chat JavaScript ===== -->
-<script>
-function toggleChat() {
-  const chat = document.getElementById("chatWindow");
-  if (chat.style.display === "flex") {
-    chat.style.display = "none";
-  } else {
-    chat.style.display = "flex";
-    chat.style.flexDirection = "column";
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sandesh - Your Secure Messaging App</title>
+<meta name="description" content="Sandesh is a fast, secure messaging app for communication. Chat, share, and connect effortlessly.">
+<style>
+  :root{
+    --purple-1:#6a3df5;
+    --purple-2:#8a4dff;
+    --pink-1:#ff5fa2;
+    --bg-lav:#f4f1ff;
+    --ink:#1c1533;
+    --muted:#6b6480;
+    --card:#ffffff;
+    --navy:#0f1230;
+    --radius:20px;
   }
-}
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI', Arial, sans-serif;
+    background:var(--bg-lav);
+    color:var(--ink);
+  }
+  a{text-decoration:none;color:inherit;}
+  ul{list-style:none;margin:0;padding:0;}
 
-function sendChat() {
-  let input = document.getElementById("userMsg");
-  let chatBody = document.getElementById("chatBody");
-  if (!input || input.value.trim() === "") return;
+  /* ===== Navbar ===== */
+  .navbar{
+    position:sticky; top:0; z-index:900;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 40px;
+    background:rgba(255,255,255,0.9);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid #eee5ff;
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:1.3em;}
+  .brand-mark{
+    width:34px; height:34px; border-radius:10px;
+    background:linear-gradient(135deg,var(--purple-2),var(--pink-1));
+    display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.1em;
+  }
+  .nav-links{display:flex; gap:30px; font-weight:600; color:#3b3552;}
+  .nav-links a{padding:6px 2px; border-bottom:2px solid transparent; transition:.2s;}
+  .nav-links a:hover, .nav-links a.active{color:var(--purple-1); border-color:var(--purple-1);}
+  .nav-actions{display:flex; gap:12px;}
+  .btn{
+    padding:10px 22px; border-radius:30px; font-weight:700; font-size:.95em;
+    border:none; cursor:pointer; display:inline-block; transition:.25s;
+  }
+  .btn-primary{background:linear-gradient(135deg,var(--purple-1),var(--pink-1)); color:#fff; box-shadow:0 8px 20px rgba(122,61,245,.35);}
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 12px 24px rgba(122,61,245,.45);}
+  .btn-ghost{background:#fff; color:var(--ink); border:1px solid #e3ddf5;}
+  .btn-ghost:hover{border-color:var(--purple-1); color:var(--purple-1);}
 
-  // user message
-  let userDiv = document.createElement("div");
-  userDiv.className = "user-msg";
-  userDiv.textContent = input.value;
-  chatBody.appendChild(userDiv);
+  /* ===== Hero ===== */
+  .hero{
+    display:flex; align-items:center; gap:40px;
+    padding:70px 40px; max-width:1300px; margin:0 auto;
+    flex-wrap:wrap;
+  }
+  .hero-copy{flex:1 1 420px;}
+  .eyebrow{color:var(--purple-1); font-weight:800; letter-spacing:1.5px; font-size:.85em;}
+  .hero h1{font-size:3em; line-height:1.1; margin:14px 0;}
+  .hero h1 .grad{background:linear-gradient(135deg,var(--purple-1),var(--pink-1)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .hero p{color:var(--muted); font-size:1.15em; max-width:480px; margin-bottom:26px;}
+  .hero-ctas{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:26px;}
+  .social-proof{display:flex; align-items:center; gap:12px; color:var(--muted); font-weight:600; font-size:.9em;}
+  .avatars{display:flex;}
+  .avatars span{
+    width:34px; height:34px; border-radius:50%; border:3px solid #fff;
+    background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); margin-left:-10px;
+    display:flex; align-items:center; justify-content:center; color:#fff; font-size:.8em; font-weight:700;
+  }
+  .avatars span:first-child{margin-left:0;}
 
-  // bot reply logic
-  let reply = "That's interesting! Tell me more 😊";
-let text = input.value.toLowerCase();
+  /* Phone mockup */
+  .hero-visual{flex:1 1 420px; display:flex; justify-content:center; align-items:center; position:relative; min-height:460px;}
+  .hero-visual .glow{
+    position:absolute; width:400px; height:400px; border-radius:50%;
+    background:radial-gradient(circle, rgba(138,77,255,.28), rgba(255,95,162,.12) 60%, transparent 75%);
+    z-index:0;
+  }
+  .hero-visual .pedestal{
+    position:absolute; bottom:10px; width:280px; height:36px; border-radius:50%;
+    background:radial-gradient(ellipse, rgba(138,77,255,.35), transparent 70%);
+    z-index:0;
+  }
+  .hero-visual img.phone-img{
+    position:relative; z-index:1; width:340px; max-width:80%;
+    filter:drop-shadow(0 30px 40px rgba(90,50,180,.3));
+  }
+  .float-bubble{
+    position:absolute; z-index:2; width:52px; height:52px; border-radius:50%;
+    background:linear-gradient(135deg,var(--purple-2),#4f7cff);
+    display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.4em;
+    box-shadow:0 12px 24px rgba(90,50,180,.3); animation:float 4s ease-in-out infinite;
+  }
+  .float-bubble.lock{background:linear-gradient(135deg,#4f7cff,#3ad4ff); top:10%; right:6%; animation-delay:.5s;}
+  .float-bubble.msg{background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); top:14%; left:2%; width:44px; height:44px; font-size:1.1em;}
+  .float-bubble.dot{width:20px; height:20px; bottom:22%; right:12%; background:linear-gradient(135deg,var(--pink-1),#ff8fbd);}
+  @keyframes float{0%,100%{transform:translateY(0);} 50%{transform:translateY(-14px);}}
+  .phone{
+    width:280px; background:#fff; border-radius:36px; padding:14px;
+    box-shadow:0 30px 60px rgba(90,50,180,.25); border:6px solid #1c1533;
+  }
+  .phone .notch{width:60px; height:6px; background:#1c1533; border-radius:4px; margin:0 auto 10px;}
+  .phone-app-header{display:flex; align-items:center; gap:8px; font-weight:800; padding:4px 6px 12px;}
+  .phone-app-header .dot{width:22px; height:22px; border-radius:7px; background:linear-gradient(135deg,var(--purple-2),var(--pink-1));}
+  .chat-row{display:flex; align-items:center; gap:10px; padding:9px 6px; border-radius:12px;}
+  .chat-row + .chat-row{margin-top:2px;}
+  .chat-row .avatar{width:34px; height:34px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:.85em;}
+  .chat-row .meta{flex:1; min-width:0;}
+  .chat-row .name{font-weight:700; font-size:.9em;}
+  .chat-row .msg{font-size:.78em; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .chat-row .time{font-size:.7em; color:#b3aecb;}
 
-if (text.includes("hello") || text.includes("hi"))
-  reply = "Hey there 👋 I'm Sandesh AI Assistant — ask me anything about the Sandesh app.";
-    if (text.includes("namaste") || text.includes("hii"))
-  reply = "Hey there 👋 I'm Sandesh AI Assistant — ask me anything about the Sandesh app.";
+  /* ===== Features ===== */
+  .section-title{text-align:center; font-size:2em; margin-bottom:8px;}
+  .section-title .bar{width:56px; height:4px; background:linear-gradient(135deg,var(--purple-1),var(--pink-1)); border-radius:4px; margin:10px auto 40px;}
+  .features{max-width:1200px; margin:0 auto; padding:70px 40px;}
+  .feature-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:24px;}
+  .feature-card{
+    background:var(--card); border-radius:var(--radius); padding:28px 22px;
+    box-shadow:0 10px 30px rgba(90,50,180,.08); text-align:center; transition:.25s;
+  }
+  .feature-card:hover{transform:translateY(-6px); box-shadow:0 16px 34px rgba(90,50,180,.16);}
+  .feature-icon{
+    width:56px; height:56px; border-radius:16px; margin:0 auto 16px;
+    display:flex; align-items:center; justify-content:center; font-size:1.6em; color:#fff;
+  }
+  .feature-card h3{margin:0 0 8px; font-size:1.1em;}
+  .feature-card p{color:var(--muted); font-size:.92em; line-height:1.5; margin:0;}
 
-else if (text.includes("what is sandesh") || text.includes("about sandesh"))
-  reply = "Sandesh is a secure, ad-free messaging app created by Ashu for fast, private communication 🔒💬";
+  /* ===== Screenshots carousel ===== */
+  .screenshots{max-width:1300px; margin:0 auto; padding:20px 40px 80px;}
+  .carousel-wrap{position:relative; max-width:1300px; margin:0 auto;}
+  .carousel-arrow{
+    position:absolute; top:50%; transform:translateY(-50%); z-index:5;
+    width:44px; height:44px; border-radius:50%; background:#fff; border:1px solid #e3ddf5;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    box-shadow:0 8px 20px rgba(90,50,180,.15); font-size:1.2em; color:var(--purple-1); transition:.2s;
+  }
+  .carousel-arrow:hover{background:var(--purple-1); color:#fff;}
+  .carousel-arrow.left{left:-6px;}
+  .carousel-arrow.right{right:-6px;}
+  .carousel-dots{display:flex; justify-content:center; gap:8px; margin-top:16px;}
+  .carousel-dots span{width:8px; height:8px; border-radius:50%; background:#ddd3fb; cursor:pointer; transition:.2s;}
+  .carousel-dots span.active{width:22px; border-radius:6px; background:linear-gradient(135deg,var(--purple-1),var(--pink-1));}
+  .carousel{display:flex; gap:22px; overflow-x:auto; padding:20px 4px 10px; scroll-snap-type:x mandatory; scroll-behavior:smooth;}
+  .carousel::-webkit-scrollbar{height:8px;}
+  .carousel::-webkit-scrollbar-thumb{background:#d9cffb; border-radius:8px;}
+  .mockup{
+    flex:0 0 auto; width:230px; scroll-snap-align:start;
+    background:#fff; border-radius:26px; border:6px solid #1c1533; padding:12px;
+    box-shadow:0 16px 36px rgba(90,50,180,.15);
+  }
+  .mockup img{
+    width:100%; display:block; border-radius:14px;
+  }
+  .mockup .screen-title{font-size:.75em; font-weight:700; text-align:center; color:var(--muted); margin-bottom:8px;}
+  .caption{text-align:center; color:var(--muted); margin-top:26px;}
 
-else if (text.includes("who is ashu") || text.includes("ashu developer"))
-  reply = "Ashu is the developer of Sandesh — a passionate Computer Science student who built this app from scratch 🚀";
-  
+  /* ===== Mission / Developer ===== */
+  .split{max-width:1200px; margin:0 auto; padding:0 40px 80px; display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  .split-card{background:var(--card); border-radius:var(--radius); padding:32px; box-shadow:0 10px 30px rgba(90,50,180,.08); display:flex; gap:20px;}
+  .split-card .icon{
+    width:56px; height:56px; border-radius:16px; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center; font-size:1.6em; color:#fff;
+    background:linear-gradient(135deg,var(--purple-1),var(--pink-1));
+  }
+  .split-card h3{margin:0 0 8px;}
+  .split-card p{color:var(--muted); line-height:1.6; margin:0 0 10px;}
+  .split-card .link{color:var(--purple-1); font-weight:700;}
 
-else if (text.includes("team") || text.includes("developer team"))
-  reply = "The Sandesh team includes Ashu and Krishnandu Das and ankit ravi on design and development 👨‍💻👨‍🎨";
+  /* ===== Footer ===== */
+  footer{background:var(--navy); color:#c7c3e0; padding:60px 40px 24px;}
+  .footer-grid{max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:30px;}
+  .footer-brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:1.2em; color:#fff; margin-bottom:10px;}
+  .footer-grid h4{color:#fff; margin:0 0 14px; font-size:1em;}
+  .footer-grid ul li{margin-bottom:10px; font-size:.92em;}
+  .footer-grid ul li a:hover{color:#fff;}
+  .footer-social{display:flex; gap:12px; margin-top:14px;}
+  .footer-social a{
+    padding:10px 18px; border-radius:30px; font-weight:700; font-size:.85em; color:#fff;
+  }
+  .fb-ig{background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af);}
+  .fb-fb{background:#3b5998;}
+  .footer-bottom{
+    max-width:1200px; margin:40px auto 0; padding-top:20px; border-top:1px solid #262a4d;
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:.85em; color:#8b87ab;
+  }
 
-else if (text.includes("features") || text.includes("functions"))
-  reply = "Sandesh offers end-to-end encryption, real-time messaging, cross-platform support, and a clean UI 📱✨";
+  /* ===== Floating AI Chat ===== */
+  .chat-icon{
+    position:fixed; bottom:25px; right:25px;
+    background:linear-gradient(135deg,var(--purple-1),var(--pink-1)); color:#fff;
+    border-radius:50%; font-size:28px; width:60px; height:60px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; box-shadow:0 10px 24px rgba(122,61,245,.4); z-index:1000; transition:.25s;
+  }
+  .chat-icon:hover{transform:scale(1.06);}
+  .chat-window{
+    position:fixed; bottom:95px; right:25px; width:320px; background:#fff;
+    border-radius:16px; box-shadow:0 14px 40px rgba(0,0,0,.2);
+    display:none; flex-direction:column; overflow:hidden; z-index:1001;
+    animation:fadeIn .25s ease-in-out;
+  }
+  @keyframes fadeIn{from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);}}
+  .chat-header{
+    background:linear-gradient(135deg,var(--purple-1),var(--pink-1)); color:#fff; padding:12px 14px;
+    display:flex; justify-content:space-between; align-items:center; font-weight:700;
+  }
+  .chat-body{height:280px; overflow-y:auto; padding:10px; background:#faf8ff; display:flex; flex-direction:column;}
+  .bot-msg, .user-msg{padding:8px 12px; border-radius:12px; margin:6px 0; display:inline-block; max-width:85%; font-size:.9em;}
+  .bot-msg{background:#eee6ff; color:#3b2570; align-self:flex-start;}
+  .user-msg{background:var(--purple-1); color:#fff; align-self:flex-end;}
+  .chat-input{display:flex; border-top:1px solid #eee;}
+  .chat-input input{flex:1; border:none; padding:12px; outline:none;}
+  .chat-input button{background:var(--purple-1); color:#fff; border:none; padding:0 16px; cursor:pointer; font-weight:700;}
+  .chat-input button:hover{background:#5a2fe0;}
 
-else if (text.includes("download") || text.includes("install"))
-  reply = "You can download Sandesh soon! For now, follow updates from Ashu’s social media 📲";
+  @media (max-width:900px){
+    .feature-grid{grid-template-columns:repeat(2,1fr);}
+    .split{grid-template-columns:1fr;}
+    .footer-grid{grid-template-columns:1fr 1fr;}
+    .nav-links{display:none;}
+  }
 
-else if (text.includes("safe") || text.includes("secure") || text.includes("privacy"))
-  reply = "Yes! Sandesh uses advanced encryption to keep all your chats private and secure 🔐";
+  /* ===== Scroll reveal animations ===== */
+  .reveal{opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.visible{opacity:1; transform:translateY(0);}
+  .reveal-delay-1.visible{transition-delay:.1s;}
+  .reveal-delay-2.visible{transition-delay:.2s;}
+  .reveal-delay-3.visible{transition-delay:.3s;}
+  .reveal-delay-4.visible{transition-delay:.4s;}
+  .hero-visual{perspective:1000px;}
+  .hero-visual img.phone-img{
+    transition:transform .2s ease-out;
+    animation:floatPhone3D 5s ease-in-out infinite;
+    transform-style:preserve-3d;
+    will-change:transform;
+  }
+  .hero-visual:hover img.phone-img{animation-play-state:paused;}
+  @keyframes floatPhone3D{
+    0%{transform:translateY(0) rotateY(-8deg) rotateX(4deg) rotateZ(-1deg);}
+    25%{transform:translateY(-14px) rotateY(6deg) rotateX(-3deg) rotateZ(1deg);}
+    50%{transform:translateY(-22px) rotateY(-4deg) rotateX(5deg) rotateZ(-1.5deg);}
+    75%{transform:translateY(-10px) rotateY(8deg) rotateX(-4deg) rotateZ(1deg);}
+    100%{transform:translateY(0) rotateY(-8deg) rotateX(4deg) rotateZ(-1deg);}
+  }
+  .split-card{perspective:800px;}
+  .split-card img[alt="Sandesh Developer"]{
+    animation:floatAvatar3D 4s ease-in-out infinite;
+    transform-style:preserve-3d;
+    will-change:transform;
+  }
+  @keyframes floatAvatar3D{
+    0%{transform:translateY(0) rotateY(-10deg) rotateZ(-2deg);}
+    50%{transform:translateY(-16px) rotateY(10deg) rotateZ(2deg);}
+    100%{transform:translateY(0) rotateY(-10deg) rotateZ(-2deg);}
+  }
+  @keyframes pulseIcon{0%,100%{transform:scale(1);} 50%{transform:scale(1.08);}}
+  .chat-icon{animation:pulseIcon 2.4s ease-in-out infinite;}
+  .chat-icon:hover{animation:none;}
+</style>
+</head>
+<body>
 
-else if (text.includes("contact") || text.includes("email"))
-  reply = "You can contact Ashu at ashutoshkumar121111@gmail.com 📧";
+  <!-- ===== Navbar ===== -->
+  <nav class="navbar">
+    <div class="brand"><img src="logo.png" alt="Sandesh" class="brand-mark" style="object-fit:contain; background:none;"> Sandesh</div>
+    <ul class="nav-links">
+      <li><a href="#home" class="active">Home</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#screenshots">Screenshots</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#why">Why Sandesh?</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-primary">Sandesh Web</a>
+      <a href="#contact" class="btn btn-ghost">Contact</a>
+    </div>
+  </nav>
 
-else if (text.includes("vision") || text.includes("mission"))
-  reply = "Sandesh’s mission is to build a private, simple, and fast messaging experience for everyone 🌍❤";
+  <!-- ===== Hero ===== -->
+  <section id="home" class="hero">
+    <div class="hero-copy reveal">
+      <div class="eyebrow">SECURE. FAST. TRULY YOURS.</div>
+      <h1>Connect with <span class="grad">Sandesh</span></h1>
+      <p>A modern messaging app built for speed, privacy, and real connections. Built by Ashu.</p>
+      <div class="hero-ctas">
+        <a href="#download-info" class="btn btn-primary">Download Now</a>
+        <a href="#features" class="btn btn-ghost">Learn More</a>
+      </div>
+      <div class="social-proof">
+        <div class="avatars"><span>A</span><span>P</span><span>R</span></div>
+        ❤️ Loved by users
+      </div>
+    </div>
 
-else if (text.includes("bye") || text.includes("thanks") || text.includes("goodbye"))
-  reply = "bye 👋 Have a great day! And remember — privacy matters! 🔒";
+    <div class="hero-visual reveal reveal-delay-2">
+      <div class="glow"></div>
+      <div class="pedestal"></div>
+      <div class="float-bubble msg">💬</div>
+      <div class="float-bubble lock">🔒</div>
+      <div class="float-bubble dot"></div>
+      <img class="phone-img" src="phone-screenshot.png" alt="Sandesh App">
+    </div>
+  </section>
 
-  else if (text.includes("who are you"))
-  reply = "I’m Sandesh Assistant 🤖. I can answer questions about the Sandesh app and its developer Ashu.";
+  <!-- ===== Features ===== -->
+  <section id="features" class="features">
+    <h2 class="section-title">Key Features</h2>
+    <div class="bar"></div>
+    <div class="feature-grid">
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon" style="background:linear-gradient(135deg,#8a4dff,#6a3df5);">👤</div>
+        <h3>Easy Login & Signup</h3>
+        <p>Use email or phone to get started quickly.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon" style="background:linear-gradient(135deg,#4f7cff,#3ad4ff);">💬</div>
+        <h3>Real-Time Chats</h3>
+        <p>Search contacts, view recent messages, and reply instantly.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-icon" style="background:linear-gradient(135deg,#22c07a,#1aa864);">🛡️</div>
+        <h3>Secure & Private</h3>
+        <p>End-to-end encryption for all conversations.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-4">
+        <div class="feature-icon" style="background:linear-gradient(135deg,#f6a623,#ff5f8f);">🔔</div>
+        <h3>Intuitive Design</h3>
+        <p>Clean interface with profile access and smart notifications.</p>
+      </div>
+    </div>
+  </section>
 
-  else if (text.includes("who is ankit"))
-  reply = "ankit is the developer of Sandesh — a passionate Computer Science student .";
-else if (text.includes("who is krishnandu"))
-  reply = "nandu is the developer of Sandesh — a passionate Computer Science student .";
-else if (text.includes("who is ravi"))
-  reply = "ravi is the developer of Sandesh — a passionate Computer Science student .";
+  <!-- ===== Why download ===== -->
+  <section id="why" class="split" style="grid-template-columns:1fr;">
+    <div class="split-card" style="flex-direction:column;">
+      <h2 style="margin:0 0 10px;">Why Download Sandesh?</h2>
+      <p>Sandesh was created with a simple mission — to make communication faster, safer, and truly ours. In today's world, most chat apps are filled with ads, data tracking, and distractions. We wanted to build something clean, secure, and designed with privacy in mind. Sandesh is made by students, for everyone — connecting people with trust and simplicity.</p>
+      <a id="download-info" href="#" class="btn btn-primary" style="align-self:flex-start;">Download for Free</a>
+    </div>
+  </section>
 
+  <!-- ===== Screenshots ===== -->
+  <section id="screenshots" class="screenshots">
+    <h2 class="section-title" style="color:#9e73ec;">See Sandesh in Action</h2>
+    <div class="bar"></div>
+    <div class="carousel-wrap">
+      <div class="carousel-arrow left" onclick="scrollCarousel(-1)">‹</div>
+      <div class="carousel-arrow right" onclick="scrollCarousel(1)">›</div>
+      <div class="carousel" id="mockupCarousel">
+        <div class="mockup reveal reveal-delay-1">
+        <div class="screen-title">Sign Up</div>
+        <img src="signup.png" alt="Sandesh Sign Up Screen">
+      </div>
+      <div class="mockup reveal reveal-delay-2">
+        <div class="screen-title">Login</div>
+        <img src="login.png" alt="Sandesh Login Screen">
+      </div>
+      <div class="mockup reveal reveal-delay-3">
+        <div class="screen-title">Chat</div>
+        <img src="chat.png" alt="Sandesh Chat Screen">
+      </div>
+      <div class="mockup reveal reveal-delay-4">
+        <div class="screen-title">Chat List</div>
+        <img src="inside.png" alt="Sandesh Chat List">
+      </div>
+      <div class="mockup reveal reveal-delay-1">
+        <div class="screen-title">Profile</div>
+        <img src="profile.png" alt="Sandesh Profile Screen">
+      </div>
+      </div>
+      <div class="carousel-dots" id="carouselDots">
+        <span class="active" onclick="goToSlide(0)"></span>
+        <span onclick="goToSlide(1)"></span>
+        <span onclick="goToSlide(2)"></span>
+        <span onclick="goToSlide(3)"></span>
+        <span onclick="goToSlide(4)"></span>
+      </div>
+    </div>
+    <p class="caption">Screenshots from the app — login securely and chat with friends like Rohan, Priya, Akash, and more!</p>
+  </section>
 
-else if (text.includes("launch") || text.includes("release") || text.includes("available"))
-  reply = "Sandesh is in development. Official release will be announced on Ashu’s social media 📢.";
+  <!-- ===== Mission & Developer ===== -->
+  <section id="about" class="split">
+    <div class="split-card reveal">
+      <div class="icon">🎯</div>
+      <div>
+        <h3>Our Mission & Vision</h3>
+        <p>Our mission is to empower people with a messaging platform that respects privacy, encourages real connections, and keeps communication simple. We believe messaging should be safe, fast, and truly yours.</p>
+      </div>
+    </div>
+    <div class="split-card reveal" style="align-items:center;">
+      <img src="team-avatar.png" alt="Sandesh Developer" style="width:110px; flex:0 0 auto; filter:drop-shadow(0 14px 20px rgba(90,50,180,.25));">
+      <div>
+        <h3>Meet the Team</h3>
+        <p>Sandesh is built by <strong>four passionate Computer Science students</strong> who believe in innovation through simplicity — <strong>Ashutosh</strong>, <strong>Ankit</strong>, <strong>Ravi</strong>, and <strong>Krishnandu</strong>. Together they designed, coded, and shaped Sandesh into a project that makes chatting better and more personal.</p>
+        <div style="display:flex; gap:20px; flex-wrap:wrap; margin:14px 0;">
+          <div style="text-align:center;">
+            <img src="ashutosh.png" alt="Ashutosh" style="width:44px; height:44px; border-radius:50%; object-fit:cover; display:block; margin:0 auto 6px;">
+            <div style="font-size:.8em; color:var(--muted);">Ashutosh</div>
+          </div>
+          <div style="text-align:center;">
+            <img src="ankit.png" alt="Ankit" style="width:44px; height:44px; border-radius:50%; object-fit:cover; display:block; margin:0 auto 6px;">
+            <div style="font-size:.8em; color:var(--muted);">Ankit</div>
+          </div>
+          <div style="text-align:center;">
+            <img src="ravi.png" alt="Ravi" style="width:44px; height:44px; border-radius:50%; object-fit:cover; display:block; margin:0 auto 6px;">
+            <div style="font-size:.8em; color:var(--muted);">Ravi</div>
+          </div>
+          <div style="text-align:center;">
+            <img src="krishnandu.png" alt="Krishnandu" style="width:44px; height:44px; border-radius:50%; object-fit:cover; display:block; margin:0 auto 6px;">
+            <div style="font-size:.8em; color:var(--muted);">Krishnandu</div>
+          </div>
+        </div>
+        <a href="about.html" class="btn btn-primary" style="font-size:.85em; padding:9px 20px;">Learn More about me →</a>
+      </div>
+    </div>
+  </section>
 
-else if (text.includes("logo") || text.includes("design"))
-  reply = "The logo and UI were designed by Ashu, while Ashu handled coding and logic 🎨💻.";
+  <!-- ===== Footer ===== -->
+  <footer id="contact">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand"><img src="logo.png" alt="Sandesh" class="brand-mark" style="object-fit:contain; background:none;"> Sandesh</div>
+        <p style="font-size:.9em; line-height:1.6;">Secure, fast messaging for your everyday chats. Built by Ashu.</p>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#screenshots">Screenshots</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#why">Why Sandesh?</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Help & Support</a></li>
+          <li><a href="#">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Stay Connected</h4>
+        <p style="font-size:.9em;">Get the latest updates about Sandesh.</p>
+        <div class="footer-social">
+          <a class="fb-ig" href="https://www.instagram.com/theashutoshraj_?igsh=ZWk1ODZnd3ZocThw" target="_blank">Instagram</a>
+          <a class="fb-fb" href="https://www.facebook.com/profile.php?id=100017399625767" target="_blank">Facebook</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Sandesh. Created by Ashu and team. All rights reserved.</span>
+      <span>Contact: ashutoshkumar121111@gmail.com</span>
+    </div>
+  </footer>
 
-else if (text.includes("difference") || text.includes("whatsapp") || text.includes("telegram"))
-  reply = "Sandesh focuses on privacy, no ads, and simple UI, unlike other apps 🔐✨.";
-
-else if (text.includes("group") || text.includes("group chat"))
-  reply = "Yes, group chat support is planned for upcoming updates 👥💬.";
-
-else if (text.includes("pc") || text.includes("computer"))
-  reply = "Currently Sandesh is mobile-only, but a web/PC version is planned 💻📱.";
-
-else if (text.includes("free") || text.includes("price"))
-  reply = "Sandesh is completely free — no ads, no hidden charges 💸.";
-
-else if (text.includes("join") || text.includes("collaborate") || text.includes("hiring"))
-  reply = "You can contact Ashu to collaborate or join the project 🤝.";
-
-else if (text.includes("website") || text.includes("link"))
-  reply = "You’re already on the official Sandesh website 🌐.";
-
-else if (text.includes("inspired") || text.includes("motivation"))
-  reply = "Ashu was inspired by privacy-focused apps and wanted to create something original 💡.";
-
-else if (text.includes("open source"))
-  reply = "Currently, Sandesh is not open source, but parts may be released for learning 📚.";
-
-else if (text.includes("update") || text.includes("future"))
-  reply = "Future updates will include dark mode, improved AI chat, and group features ✨.";
-
-else
-  reply = "Hmm 🤔 I’m not sure about that yet, but I’ll learn soon! Ask me something about Sandesh or its creator.";
-  setTimeout(() => {
-    let botDiv = document.createElement("div");
-    botDiv.className = "bot-msg";
-    botDiv.textContent = reply;
-    chatBody.appendChild(botDiv);
-    chatBody.scrollTop = chatBody.scrollHeight;
-  }, 500);
-
-  input.value = "";
-  chatBody.scrollTop = chatBody.scrollHeight;
-}
-</script>
-<!-- ===== End of Chat JS ===== -->
-    <!-- ===== Sandesh Floating AI Chat HTML ===== -->
-<div class="chat-icon" onclick="toggleChat()">🤖</div>
-
-<div class="chat-window" id="chatWindow">
-  <div class="chat-header">
-    <h4 style="margin:0;">Sandesh AI Assistant</h4>
-    <span style="cursor:pointer;" onclick="toggleChat()">✖</span>
+  <!-- ===== Floating AI Chat ===== -->
+  <div class="chat-icon" onclick="toggleChat()">🤖</div>
+  <div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+      <span>Sandesh AI Assistant</span>
+      <span style="cursor:pointer;" onclick="toggleChat()">✖</span>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <div class="bot-msg">Hi! 👋 I'm Sandesh Assistant. How can I help you today?</div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="userMsg" placeholder="Type a message..." onkeydown="if(event.key==='Enter'){sendChat()}">
+      <button onclick="sendChat()">Send</button>
+    </div>
   </div>
-  <div class="chat-body" id="chatBody">
-    <div class="bot-msg">Hi! 👋 I’m Sandesh Assistant. How can I help you today?</div>
-  </div>
-  <div class="chat-input">
-    <input type="text" id="userMsg" placeholder="Type a message..." onkeydown="if(event.key==='Enter'){sendChat()}">
-    <button onclick="sendChat()">Send</button>
-  </div>
-</div>
-<!-- ===== End of Chat HTML ===== -->
+
+  <script>
+    const carousel = document.getElementById('mockupCarousel');
+    const dots = document.querySelectorAll('#carouselDots span');
+
+    function scrollCarousel(dir){
+      const card = carousel.querySelector('.mockup');
+      const gap = 22;
+      const step = card.offsetWidth + gap;
+      carousel.scrollBy({left: dir * step, behavior:'smooth'});
+    }
+
+    function goToSlide(i){
+      const card = carousel.querySelector('.mockup');
+      const gap = 22;
+      const step = card.offsetWidth + gap;
+      carousel.scrollTo({left: i * step, behavior:'smooth'});
+    }
+
+    carousel.addEventListener('scroll', () => {
+      const card = carousel.querySelector('.mockup');
+      const gap = 22;
+      const step = card.offsetWidth + gap;
+      const idx = Math.round(carousel.scrollLeft / step);
+      dots.forEach((d,i)=> d.classList.toggle('active', i === idx));
+    });
+  </script>
+
+  <script>
+    // ===== Scroll reveal animations =====
+    const revealEls = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting){
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    revealEls.forEach(el => revealObserver.observe(el));
+
+    // ===== Lightweight sound effects (Web Audio API, no files needed) =====
+    let audioCtx;
+    function getCtx(){
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      return audioCtx;
+    }
+    function playTone(freq, duration, type='sine', volume=0.06){
+      try{
+        const ctx = getCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        gain.gain.value = volume;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+        osc.stop(ctx.currentTime + duration);
+      }catch(e){}
+    }
+    function playClickSound(){ playTone(520, 0.12, 'sine', 0.05); }
+    function playOpenSound(){ playTone(660, 0.15, 'triangle', 0.05); setTimeout(()=>playTone(880,0.15,'triangle',0.04), 80); }
+    function playSendSound(){ playTone(740, 0.1, 'sine', 0.05); }
+
+    document.querySelectorAll('.btn, .carousel-arrow, .cta-button').forEach(el => {
+      el.addEventListener('click', playClickSound);
+    });
+    // ===== 3D tilt parallax on hero phone (follows mouse) =====
+    const heroVisual = document.querySelector('.hero-visual');
+    const phoneImg = document.querySelector('.hero-visual img.phone-img');
+    if (heroVisual && phoneImg){
+      heroVisual.addEventListener('mousemove', (e) => {
+        const rect = heroVisual.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        phoneImg.style.transform = `rotateY(${x * 24}deg) rotateX(${-y * 20}deg) translateY(-10px) scale(1.04)`;
+      });
+      heroVisual.addEventListener('mouseleave', () => {
+        phoneImg.style.transform = '';
+      });
+    }
+  </script>
+
+  <script>
+      a.addEventListener('click', function(e){
+        const target = document.querySelector(this.getAttribute('href'));
+        if(target){ e.preventDefault(); target.scrollIntoView({behavior:'smooth'}); }
+      });
+    
+
+    // ===== Sandesh AI Assistant knowledge base =====
+    // Each entry: keywords (many phrasings/typos/Hinglish) + reply.
+    // Matching picks the entry with the most keyword hits in the user's message.
+    const knowledgeBase = [
+      {
+        keywords: ["hello","hi","hii","hey","namaste","namaskar","yo","start"],
+        reply: "Hey there 👋 I'm Sandesh AI Assistant. Ask me about the app, its features, the team, download, pricing, safety — anything!"
+      },
+      {
+        keywords: ["what is sandesh","about sandesh","sandesh kya hai","define sandesh","tell me about sandesh","explain sandesh"],
+        reply: "Sandesh is a secure, ad-free messaging app built for fast, private communication 🔒💬. It's made by students who care about privacy and simplicity."
+      },
+      {
+        keywords: ["who is ashu","ashu developer","ashutosh","founder","who made this","who built","who created","kisne banaya"],
+        reply: "Ashutosh is the lead developer of Sandesh — a Computer Science student who built the app from scratch, along with his teammates Ankit, Ravi, and Krishnandu 🚀"
+      },
+      {
+        keywords: ["team","developer team","who is ankit","who is krishnandu","who is ravi","members","made by 4","four people","teammates"],
+        reply: "Sandesh is built by a team of 4 Computer Science students — Ashutosh, Ankit, Ravi, and Krishnandu 👨‍💻. Each of them contributed to design and development."
+      },
+      {
+        keywords: ["features","functions","kya kya hai","what can it do","capabilities","specialty"],
+        reply: "Sandesh offers end-to-end encryption, real-time messaging, cross-platform support, and a clean, intuitive UI 📱✨"
+      },
+      {
+        keywords: ["download","install","kaise download","get the app","apk","play store","app store"],
+        reply: "Sandesh will be downloadable soon! For now, follow our social media for launch updates 📲"
+      },
+      {
+        keywords: ["safe","secure","security","privacy","data","encryption","hack","hacked"],
+        reply: "Yes! Sandesh uses end-to-end encryption to keep every chat private and secure 🔐. No ads, no data selling."
+      },
+      {
+        keywords: ["contact","email","reach","support","help","query","complaint"],
+        reply: "You can reach the team at ashutoshkumar121111@gmail.com 📧 — happy to help!"
+      },
+      {
+        keywords: ["vision","mission","goal","purpose","why sandesh","why did you build"],
+        reply: "Sandesh's mission is to build a private, simple, and fast messaging experience for everyone 🌍❤"
+      },
+      {
+        keywords: ["bye","thanks","thank you","goodbye","ok bye","see you"],
+        reply: "Bye 👋 Have a great day! And remember — privacy matters! 🔒"
+      },
+      {
+        keywords: ["who are you","what are you","your name","introduce yourself"],
+        reply: "I'm Sandesh Assistant 🤖. I can answer questions about the Sandesh app, its team, features, pricing, and more."
+      },
+      {
+        keywords: ["launch","release","available","when will it come","launch date","coming soon"],
+        reply: "Sandesh is in active development. Official release will be announced on our social media 📢"
+      },
+      {
+        keywords: ["logo","design","ui design","who designed"],
+        reply: "The logo and UI were designed and coded entirely by the Sandesh team 🎨💻"
+      },
+      {
+        keywords: ["difference","whatsapp","telegram","signal","compare","better than","vs"],
+        reply: "Sandesh focuses on privacy, zero ads, and a clean, simple UI — unlike most mainstream chat apps 🔐✨"
+      },
+      {
+        keywords: ["group","group chat","groups"],
+        reply: "Group chat support is planned for an upcoming update 👥💬"
+      },
+      {
+        keywords: ["pc","computer","laptop","desktop","web version"],
+        reply: "Currently Sandesh is mobile-first, but a web/PC version is planned for the future 💻📱"
+      },
+      {
+        keywords: ["free","price","cost","paid","subscription","payment"],
+        reply: "Sandesh is completely free — no ads, no hidden charges, ever 💸"
+      },
+      {
+        keywords: ["join","collaborate","hiring","work with you","internship","contribute"],
+        reply: "We'd love that! You can contact the team directly to collaborate or contribute 🤝"
+      },
+      {
+        keywords: ["website","link","url","site"],
+        reply: "You're already on the official Sandesh website 🌐"
+      },
+      {
+        keywords: ["inspired","motivation","idea behind","why start"],
+        reply: "The team was inspired by privacy-focused apps and wanted to build something original and trustworthy 💡"
+      },
+      {
+        keywords: ["open source","github","source code"],
+        reply: "Sandesh isn't fully open source right now, but parts may be released for learning purposes 📚"
+      },
+      {
+        keywords: ["update","future","roadmap","next version","upcoming"],
+        reply: "Upcoming updates include dark mode, group chats, and an even smarter AI assistant ✨"
+      },
+      {
+        keywords: ["signup","sign up","register","create account","new account"],
+        reply: "Signing up is quick — just use your email or phone number to get started 📝"
+      },
+      {
+        keywords: ["login","log in","sign in","password reset","forgot password"],
+        reply: "Login is simple with your email/phone and password. Password reset support is coming soon 🔑"
+      },
+      {
+        keywords: ["notification","notifications","alerts"],
+        reply: "Sandesh sends smart, real-time notifications so you never miss a message 🔔"
+      },
+      {
+        keywords: ["profile","edit profile","account settings"],
+        reply: "You can edit your profile, manage privacy settings, and control notifications from the Profile screen 👤"
+      }
+    ];
+
+    function findReply(text){
+      let bestScore = 0;
+      let bestReply = null;
+      knowledgeBase.forEach(entry => {
+        let score = 0;
+        entry.keywords.forEach(k => { if (text.includes(k)) score++; });
+        if (score > bestScore) { bestScore = score; bestReply = entry.reply; }
+      });
+      return bestReply;
+    }
+
+    const fallbackSuggestions = ["Features", "Team", "Download", "Is it safe?", "Pricing"];
+
+    function toggleChat(){
+      const chat = document.getElementById("chatWindow");
+      const opening = chat.style.display !== "flex";
+      chat.style.display = opening ? "flex" : "none";
+      if (opening) playOpenSound();
+    }
+
+    function askQuick(topic){
+      const input = document.getElementById("userMsg");
+      input.value = topic;
+      sendChat();
+    }
+
+    function sendChat(){
+      const input = document.getElementById("userMsg");
+      const chatBody = document.getElementById("chatBody");
+      if(!input || input.value.trim() === "") return;
+      playSendSound();
+
+      const userDiv = document.createElement("div");
+      userDiv.className = "user-msg";
+      userDiv.textContent = input.value;
+      chatBody.appendChild(userDiv);
+
+      const text = input.value.toLowerCase();
+      const matched = findReply(text);
+
+      setTimeout(()=>{
+        const botDiv = document.createElement("div");
+        botDiv.className = "bot-msg";
+
+        if (matched){
+          botDiv.textContent = matched;
+          chatBody.appendChild(botDiv);
+        } else {
+          botDiv.textContent = "Hmm 🤔 I don't have an exact answer for that yet. Try one of these, or ask in a different way:";
+          chatBody.appendChild(botDiv);
+
+          const chipsDiv = document.createElement("div");
+          chipsDiv.style.display = "flex";
+          chipsDiv.style.flexWrap = "wrap";
+          chipsDiv.style.gap = "6px";
+          chipsDiv.style.margin = "4px 0 8px";
+          fallbackSuggestions.forEach(topic => {
+            const chip = document.createElement("span");
+            chip.textContent = topic;
+            chip.style.cssText = "background:#eee6ff; color:#5a2fe0; padding:6px 12px; border-radius:14px; font-size:.8em; cursor:pointer; font-weight:600;";
+            chip.onclick = () => askQuick(topic);
+            chipsDiv.appendChild(chip);
+          });
+          chatBody.appendChild(chipsDiv);
+        }
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }, 450);
+
+      input.value = "";
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+  </script>
 </body>
 </html>
-
