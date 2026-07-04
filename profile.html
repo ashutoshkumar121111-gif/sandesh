@@ -234,7 +234,6 @@
     import {
       getStorage, ref, uploadBytes, getDownloadURL
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-
     // =========================================================
     // 🔧 PASTE YOUR FIREBASE CONFIG HERE — must match login.html / chat.html
     // =========================================================
@@ -281,8 +280,9 @@
 
         const avatarEl = document.getElementById('myAvatar');
         const fallbackEl = document.getElementById('avatarFallback');
-        if (data.photoURL){
-          avatarEl.src = data.photoURL;
+        const myPhoto = data.imageurl || data.photoURL;
+        if (myPhoto){
+          avatarEl.src = myPhoto;
           avatarEl.style.display = 'block';
           fallbackEl.style.display = 'none';
         } else {
@@ -319,8 +319,9 @@
       document.getElementById('editUsernameInput').value = currentProfileData.username || '';
       document.getElementById('editPhoneInput').value = currentProfileData.phone || '';
       document.getElementById('editBioInput').value = currentProfileData.bio || '';
-      if (currentProfileData.photoURL){
-        editPhotoPreview.src = currentProfileData.photoURL;
+      const existingPhoto = currentProfileData.imageurl || currentProfileData.photoURL;
+      if (existingPhoto){
+        editPhotoPreview.src = existingPhoto;
         editPhotoPreview.style.display = 'block';
         editPhotoPlaceholder.style.display = 'none';
       } else {
@@ -341,15 +342,16 @@
 
       saveBtn.disabled = true; saveBtn.textContent = "Saving...";
       try{
-        let photoURL = currentProfileData.photoURL || "";
+        // "imageurl" matches the field name your mobile app uses in Firestore
+        let imageurl = currentProfileData.imageurl || currentProfileData.photoURL || "";
         const file = editPhotoInput.files[0];
         if (file){
           const photoRef = ref(storage, `profile_photos/${currentUser.uid}.jpg`);
           await uploadBytes(photoRef, file);
-          photoURL = await getDownloadURL(photoRef);
+          imageurl = await getDownloadURL(photoRef);
         }
-        await setDoc(doc(db, "users", currentUser.uid), { name, username, phone, bio, photoURL }, { merge: true });
-        currentProfileData = { ...currentProfileData, name, username, phone, bio, photoURL };
+        await setDoc(doc(db, "users", currentUser.uid), { name, username, phone, bio, imageurl }, { merge: true });
+        currentProfileData = { ...currentProfileData, name, username, phone, bio, imageurl };
         await loadProfile();
         editModal.classList.remove('open');
       }catch(err){
