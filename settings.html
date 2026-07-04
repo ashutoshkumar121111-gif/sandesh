@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings | Sandesh</title>
+<style>
+  :root{
+    --purple-1:#6a3df5; --purple-2:#8a4dff; --pink-1:#ff5fa2;
+    --bg-lav:#f4f1ff; --ink:#1c1533; --muted:#6b6480; --card:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Segoe UI', Arial, sans-serif; color:var(--ink);
+    background:linear-gradient(135deg,#ede7ff,#fff0f6); min-height:100vh;
+  }
+  a{text-decoration:none; color:inherit;}
+
+  .topbar{
+    display:flex; align-items:center; gap:14px;
+    padding:16px 24px; background:rgba(255,255,255,.9); backdrop-filter:blur(8px);
+    border-bottom:1px solid #eee5ff; position:sticky; top:0; z-index:50;
+  }
+  .icon-btn{
+    width:38px; height:38px; border-radius:50%; border:none; background:#f4f1ff; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:1.1em; color:var(--purple-1);
+  }
+  .topbar h1{font-size:1.15em; margin:0; font-weight:800;}
+
+  .wrap{max-width:480px; margin:0 auto; padding:30px 20px 60px;}
+  .settings-group{
+    background:#fff; border-radius:20px; margin-bottom:20px; overflow:hidden;
+    box-shadow:0 10px 30px rgba(90,50,180,.08);
+  }
+  .group-label{font-size:.78em; font-weight:800; color:var(--purple-1); text-transform:uppercase; letter-spacing:.5px; margin:0 0 10px 8px;}
+  .setting-row{
+    display:flex; align-items:center; gap:14px; padding:16px 20px; border-bottom:1px solid #f2eefa; cursor:pointer;
+  }
+  .setting-row:last-child{border-bottom:none;}
+  .setting-row .icon{font-size:1.3em; width:26px; text-align:center;}
+  .setting-row .text{flex:1;}
+  .setting-row .title{font-weight:700; font-size:.95em;}
+  .setting-row .sub{font-size:.78em; color:var(--muted); margin-top:2px;}
+  .setting-row .chevron{color:#c9c2e6; font-size:1.1em;}
+
+  /* Toggle switch */
+  .toggle{
+    width:44px; height:24px; border-radius:20px; background:#e3ddf5; position:relative; cursor:pointer; flex-shrink:0;
+    transition:.2s;
+  }
+  .toggle.on{background:linear-gradient(135deg,var(--purple-1),var(--pink-1));}
+  .toggle .knob{
+    position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff;
+    transition:.2s; box-shadow:0 2px 4px rgba(0,0,0,.15);
+  }
+  .toggle.on .knob{left:23px;}
+
+  .danger-row .title{color:#d9376e;}
+  .danger-row .icon{color:#d9376e;}
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <button class="icon-btn" onclick="window.location.href='profile.html'">←</button>
+    <h1>Settings</h1>
+  </div>
+
+  <div class="wrap">
+
+    <div class="group-label">Account</div>
+    <div class="settings-group">
+      <a class="setting-row" href="profile.html">
+        <span class="icon">👤</span>
+        <div class="text"><div class="title">Edit Profile</div><div class="sub">Name, username, photo, bio</div></div>
+        <span class="chevron">›</span>
+      </a>
+      <div class="setting-row" onclick="alert('Change password flow coming soon 🔒')">
+        <span class="icon">🔑</span>
+        <div class="text"><div class="title">Change Password</div><div class="sub">Update your account password</div></div>
+        <span class="chevron">›</span>
+      </div>
+    </div>
+
+    <div class="group-label">Privacy & Security</div>
+    <div class="settings-group">
+      <div class="setting-row">
+        <span class="icon">🟢</span>
+        <div class="text"><div class="title">Online Status</div><div class="sub">Show others when you're active</div></div>
+        <div class="toggle on" id="toggleOnline" onclick="toggleSwitch(this)"><div class="knob"></div></div>
+      </div>
+      <div class="setting-row">
+        <span class="icon">✓✓</span>
+        <div class="text"><div class="title">Read Receipts</div><div class="sub">Let others see when you've read messages</div></div>
+        <div class="toggle on" id="toggleReceipts" onclick="toggleSwitch(this)"><div class="knob"></div></div>
+      </div>
+      <div class="setting-row">
+        <span class="icon">🔒</span>
+        <div class="text"><div class="title">End-to-End Encryption</div><div class="sub">Always on for all your chats</div></div>
+        <div class="toggle on" style="opacity:.5; pointer-events:none;"><div class="knob"></div></div>
+      </div>
+    </div>
+
+    <div class="group-label">Notifications</div>
+    <div class="settings-group">
+      <div class="setting-row">
+        <span class="icon">🔔</span>
+        <div class="text"><div class="title">Message Notifications</div><div class="sub">Get notified for new messages</div></div>
+        <div class="toggle on" id="toggleNotif" onclick="toggleSwitch(this)"><div class="knob"></div></div>
+      </div>
+      <div class="setting-row">
+        <span class="icon">🔊</span>
+        <div class="text"><div class="title">Notification Sound</div><div class="sub">Play a sound for new messages</div></div>
+        <div class="toggle" id="toggleSound" onclick="toggleSwitch(this)"><div class="knob"></div></div>
+      </div>
+    </div>
+
+    <div class="group-label">Appearance</div>
+    <div class="settings-group">
+      <div class="setting-row">
+        <span class="icon">🌙</span>
+        <div class="text"><div class="title">Dark Mode</div><div class="sub">Coming soon</div></div>
+        <div class="toggle" style="opacity:.5; pointer-events:none;"><div class="knob"></div></div>
+      </div>
+    </div>
+
+    <div class="group-label">Support</div>
+    <div class="settings-group">
+      <div class="setting-row" onclick="window.location.href='mailto:ashutoshkumar121111@gmail.com'">
+        <span class="icon">💬</span>
+        <div class="text"><div class="title">Help & Support</div><div class="sub">Contact the Sandesh team</div></div>
+        <span class="chevron">›</span>
+      </div>
+      <a class="setting-row" href="about.html">
+        <span class="icon">ℹ️</span>
+        <div class="text"><div class="title">About Sandesh</div><div class="sub">Version, team, and more</div></div>
+        <span class="chevron">›</span>
+      </a>
+    </div>
+
+    <div class="group-label">Account Actions</div>
+    <div class="settings-group">
+      <div class="setting-row danger-row" onclick="doLogout()">
+        <span class="icon">⏻</span>
+        <div class="text"><div class="title">Logout</div></div>
+      </div>
+      <div class="setting-row danger-row" onclick="confirmDelete()">
+        <span class="icon">🗑️</span>
+        <div class="text"><div class="title">Delete Account</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function toggleSwitch(el){
+      el.classList.toggle('on');
+    }
+    function confirmDelete(){
+      if (confirm("This will permanently delete your account. Are you sure?")){
+        alert("Account deletion isn't wired up yet — connect this to your Firebase backend.");
+      }
+    }
+  </script>
+
+  <!-- Firebase logout (requires the file to be served over http/https) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // 🔧 Same Firebase config as login.html / chat.html / profile.html
+        const firebaseConfig = {
+      apiKey: "AIzaSyBE0CmXkQr_LV1YU7y1MpkKUrCr_i9ZD9E",
+      authDomain: "sandesh-ff5ff.firebaseapp.com",
+      databaseURL: "https://sandesh-ff5ff-default-rtdb.firebaseio.com",
+      projectId: "sandesh-ff5ff",
+      storageBucket: "sandesh-ff5ff.firebasestorage.app",
+      messagingSenderId: "642211479662",
+      appId: "1:642211479662:web:1eb6f4d34a61d076b3a67f",
+      measurementId: "G-40WGJPN5ND"
+    };
+
+    let auth;
+    try{
+      const app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+    }catch(err){ console.error(err); }
+
+    window.doLogout = () => {
+      if (!auth){ alert("Firebase isn't connected yet."); return; }
+      signOut(auth).then(() => window.location.href = "login.html");
+    };
+  </script>
+
+</body>
+</html>
