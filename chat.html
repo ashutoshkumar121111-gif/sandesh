@@ -15,10 +15,6 @@
 
   .app{display:flex; flex:1; min-height:0;}
 
-  @media (max-width:800px){
-    .bottom-tabs{display:flex !important;}
-  }
-
   /* ===== Sidebar ===== */
   .sidebar{
     width:340px; background:#fff; border-right:1px solid #eee5ff;
@@ -145,9 +141,8 @@
     background:linear-gradient(135deg,var(--purple-1),var(--pink-1)); color:#fff;
   }
   .bottom-tabs{
-    position:fixed; bottom:0; left:0; right:0; display:flex; background:#fff;
-    border-top:1px solid #eee5ff; padding:8px 0 4px; box-shadow:0 -6px 20px rgba(90,50,180,.06);
-    z-index:40;
+    display:flex; background:#fff;
+    border-top:1px solid #eee5ff; padding:8px 0 4px; flex-shrink:0;
   }
   .bottom-tabs a{
     flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
@@ -213,6 +208,12 @@
       <div class="contact-list" id="contactList">
         <!-- contacts populated by JS -->
       </div>
+
+      <!-- Chat / Profile switch, sits at the bottom of the sidebar -->
+      <div class="bottom-tabs" id="bottomTabs">
+        <a href="javascript:void(0)" class="active" id="tabChatBtn"><span class="tab-icon">💬</span>Chat</a>
+        <a href="profile.html" id="tabProfileBtn"><span class="tab-icon">👤</span>Profile</a>
+      </div>
     </aside>
 
     <!-- ===== Chat Panel ===== -->
@@ -248,12 +249,6 @@
         </div>
       </div>
     </main>
-  </div>
-
-  <!-- Mobile bottom tabs (Chat / Profile), like the app -->
-  <div class="bottom-tabs" id="bottomTabs">
-    <a href="javascript:void(0)" class="active" id="tabChatBtn"><span class="tab-icon">💬</span>Chat</a>
-    <a href="profile.html" id="tabProfileBtn"><span class="tab-icon">👤</span>Profile</a>
   </div>
 
   <!-- ===== Edit Profile Modal ===== -->
@@ -458,7 +453,8 @@
         else { avatarEl.style.display = 'none'; }
       }catch(err){ console.error(err); }
     }
-// ---- Deterministic chat ID for a 1:1 conversation between two UIDs ----
+
+    // ---- Deterministic chat ID for a 1:1 conversation between two UIDs ----
     function chatIdFor(uidA, uidB){
       return [uidA, uidB].sort().join('_');
     }
