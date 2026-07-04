@@ -247,11 +247,7 @@
           <div class="handle" id="myHandle">@username</div>
           <button class="btn-edit" id="editProfileBtn">Edit Profile</button>
         </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- ===== Edit Profile Modal ===== -->
+        <!-- ===== Edit Profile Modal ===== -->
   <div class="modal-overlay" id="editModal">
     <div class="modal-box">
       <h3>Edit Profile</h3>
@@ -290,7 +286,7 @@
     // field names in case your mobile app uses a different key), otherwise falls
     // back to colored initials.
     function avatarInnerHtml(user){
-      const photo = user.photoURL || user.photoUrl || user.profileImage || user.avatar || user.image;
+      const photo = user.imageurl || user.photoURL || user.photoUrl || user.profileImage || user.avatar || user.image;
       if (photo){
         return `<img src="${photo}" alt="" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
       }
@@ -567,3 +563,6 @@
   </script>
 </body>
 </html>
+      </div>
+    </main>
+  </div>
