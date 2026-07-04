@@ -252,8 +252,8 @@
 
   <!-- Mobile bottom tabs (Chat / Profile), like the app -->
   <div class="bottom-tabs" id="bottomTabs">
-    <button class="active" id="tabChatBtn"><span class="icon">💬</span>Chat</button>
-    <button id="tabProfileBtn"><span class="icon">👤</span>Profile</button>
+    <a href="javascript:void(0)" class="active" id="tabChatBtn"><span class="tab-icon">💬</span>Chat</a>
+    <a href="profile.html" id="tabProfileBtn"><span class="tab-icon">👤</span>Profile</a>
   </div>
 
   <!-- ===== Edit Profile Modal ===== -->
@@ -291,6 +291,17 @@
       return (name || '?').trim().split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
     }
 
+    // Renders a real profile photo if the user doc has one (checks a few common
+    // field names in case your mobile app uses a different key), otherwise falls
+    // back to colored initials.
+    function avatarInnerHtml(user){
+      const photo = user.photoURL || user.photoUrl || user.profileImage || user.avatar || user.image;
+      if (photo){
+        return `<img src="${photo}" alt="" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+      }
+      return initials(user.name);
+    }
+
     // ---- 3-dot dropdown menu ----
     const menuBtn = document.getElementById('menuBtn');
     const dropdownMenu = document.getElementById('dropdownMenu');
@@ -315,7 +326,6 @@
       document.getElementById('tabProfileBtn')?.classList.remove('active');
     }
     document.getElementById('tabChatBtn').onclick = showChatView;
-    document.getElementById('tabProfileBtn').onclick = () => window.location.href = 'profile.html';
 
     // ---- Edit Profile modal (open/cancel/photo preview are pure UI) ----
     const editModal = document.getElementById('editModal');
@@ -448,12 +458,12 @@
         else { avatarEl.style.display = 'none'; }
       }catch(err){ console.error(err); }
     }
-
-    // ---- Deterministic chat ID for a 1:1 conversation between two UIDs ----
+// ---- Deterministic chat ID for a 1:1 conversation between two UIDs ----
     function chatIdFor(uidA, uidB){
       return [uidA, uidB].sort().join('_');
     }
-// ---- Load all other users from "users" collection (same collection your app writes to) ----
+
+    // ---- Load all other users from "users" collection (same collection your app writes to) ----
     async function loadContacts(){
       const list = document.getElementById('contactList');
       list.innerHTML = '<div style="padding:20px; color:#999; font-size:.85em;">Loading contacts…</div>';
@@ -468,7 +478,7 @@
           const row = document.createElement('div');
           row.className = 'contact';
           row.innerHTML = `
-            <div class="avatar">${initials(u.name)}<span class="dot ${u.online ? 'online' : ''}"></span></div>
+            <div class="avatar">${avatarInnerHtml(u)}<span class="dot ${u.online ? 'online' : ''}"></span></div>
             <div class="contact-meta">
               <div class="name">${u.name || 'Unknown'}</div>
               <div class="last-msg">@${u.username || 'user'}</div>
@@ -491,7 +501,7 @@
 
       document.getElementById('emptyState').style.display = 'none';
       document.getElementById('activeChat').style.display = 'flex';
-      document.getElementById('chatAvatar').textContent = initials(otherUser.name);
+      document.getElementById('chatAvatar').innerHTML = avatarInnerHtml(otherUser);
       document.getElementById('chatName').textContent = otherUser.name || 'Unknown';
       document.getElementById('chatStatus').textContent = otherUser.online ? 'online' : 'offline';
 
