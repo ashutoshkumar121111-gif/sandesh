@@ -97,6 +97,10 @@
       <input type="text" id="signupName" placeholder="Your name">
       <label>Username</label>
       <input type="text" id="signupUsername" placeholder="e.g. ashu (without @)">
+      <label>Phone Number</label>
+      <input type="tel" id="signupPhone" placeholder="e.g. 9876543210">
+      <label>Date of Birth</label>
+      <input type="date" id="signupDob">
       <label>Email</label>
       <input type="email" id="signupEmail" placeholder="you@example.com">
       <label>Password</label>
@@ -175,6 +179,7 @@
     import {
       getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
       updateProfile, onAuthStateChanged, GoogleAuthProvider, signInWithPopup,
+      signInWithRedirect, getRedirectResult,
       RecaptchaVerifier, signInWithPhoneNumber
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
@@ -236,6 +241,8 @@
       if (!firebaseReady){ showError("⚠️ Firebase isn't connected yet. Paste your config in login.html first."); return; }
       const name = document.getElementById('signupName').value.trim();
       const username = document.getElementById('signupUsername').value.trim().replace(/^@/, '');
+      const phone = document.getElementById('signupPhone').value.trim();
+      const dob = document.getElementById('signupDob').value;
       const email = document.getElementById('signupEmail').value.trim();
       const password = document.getElementById('signupPassword').value;
       if (!name || !username || !email || !password){ showError("Please fill in all fields."); return; }
@@ -264,6 +271,8 @@
         await setDoc(doc(db, "users", cred.user.uid), {
           name: name,
           username: username,
+          phone: phone,
+          dob: dob,
           email: email,
           photoURL: photoURL,
           online: true,
@@ -290,33 +299,51 @@
     }
 
     // ---- Google Sign-In ----
+    async function saveGoogleUserDoc(user){
+      const userRef = doc(db, "users", user.uid);
+      const existing = await getDoc(userRef);
+      if (!existing.exists()){
+        await setDoc(userRef, {
+          name: user.displayName || "New User",
+          username: (user.email || "user").split('@')[0],
+          email: user.email || "",
+          photoURL: user.photoURL || "",
+          online: true,
+          createdAt: serverTimestamp()
+        });
+      }
+    }
+
+    function isMobileBrowser(){
+      return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    }
+
     window.doGoogleLogin = async function(){
       hideError();
       if (!firebaseReady){ showError("⚠️ Firebase isn't connected yet. Paste your config in login.html first."); return; }
+      const provider = new GoogleAuthProvider();
+
+      // Mobile browsers frequently block sign-in popups — redirect is far more reliable there.
+      if (isMobileBrowser()){
+        try{
+          await signInWithRedirect(auth, provider);
+          // Page will reload; getRedirectResult() below handles the rest after redirect back.
+        }catch(err){
+          console.error(err);
+          showError("Could not start Google sign-in. Please try again.");
+        }
+        return;
+      }
+
       const btn = document.getElementById('googleBtn');
       btn.disabled = true;
       try{
-        const provider = new GoogleAuthProvider();
         const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-
-        // Create the user doc if this is their first time signing in
-        const userRef = doc(db, "users", user.uid);
-        const existing = await getDoc(userRef);
-        if (!existing.exists()){
-          await setDoc(userRef, {
-            name: user.displayName || "New User",
-            username: (user.email || "user").split('@')[0],
-            email: user.email || "",
-            photoURL: user.photoURL || "",
-            online: true,
-            createdAt: serverTimestamp()
-          });
-        }
+        await saveGoogleUserDoc(result.user);
         window.location.href = "chat.html";
       }catch(err){
         console.error(err);
-        showError("Google sign-in failed. Please try again.");
+        showError("Google sign-in failed. Please try again, or use email/phone login instead.");
       }finally{
         btn.disabled = false;
       }
@@ -383,11 +410,26 @@
       }
     };
 
-    // If already logged in, skip straight to chat
+    // Handle the return from Google redirect sign-in (mobile flow), then
+    // fall back to the normal "already logged in" check.
     if (firebaseReady){
-      onAuthStateChanged(auth, (user) => {
-        if (user) window.location.href = "chat.html";
-      });
+      (async () => {
+        try{
+          const redirectResult = await getRedirectResult(auth);
+          if (redirectResult && redirectResult.user){
+            await saveGoogleUserDoc(redirectResult.user);
+            window.location.href = "chat.html";
+            return;
+          }
+        }catch(err){
+          console.error(err);
+          showError("Google sign-in failed. Please try again, or use email/phone login instead.");
+        }
+
+        onAuthStateChanged(auth, (user) => {
+          if (user) window.location.href = "chat.html";
+        });
+      })();
     }
   </script>
 </body>
