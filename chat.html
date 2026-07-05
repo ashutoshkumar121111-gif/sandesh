@@ -352,6 +352,9 @@
             <button class="icon-btn" id="chatMenuBtn">⋮</button>
             <div class="dropdown-menu" id="chatMenu">
               <button id="viewProfileBtn">👤 View Profile</button>
+              <button id="viewFullPicBtn">🖼️ Full Profile Picture</button>
+              <button id="pinnedMessagesBtn">📌 Pinned Messages</button>
+              <button id="muteChatBtn">🔕 Mute Chat</button>
               <button id="blockUserBtn">🚫 Block User</button>
               <button id="unblockUserBtn">🔓 Unblock User</button>
               <button id="clearChatBtn">🗑️ Clear Chat</button>
@@ -457,6 +460,7 @@
     let currentUser = null;
     let activeChatId = null;
     let activeContact = null;
+    let lastRenderedEntries = [];
     let unsubscribeMessages = null;
     let currentProfileData = {};
 
@@ -605,6 +609,67 @@
       viewProfileModal.classList.add('open');
     };
     document.getElementById('viewProfileCloseBtn').onclick = () => viewProfileModal.classList.remove('open');
+
+    // ---- Full Profile Picture View: full-screen overlay with the contact's photo ----
+    document.getElementById('viewFullPicBtn').onclick = () => {
+      chatMenu.classList.remove('open');
+      if (!activeContact) return;
+      const photo = activeContact.imageurl || activeContact.photoURL || activeContact.photoUrl || activeContact.profileImage || activeContact.avatar || activeContact.image;
+      if (!photo){ alert("This user hasn't set a profile photo."); return; }
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed; inset:0; background:rgba(10,5,20,.9); z-index:300; display:flex; align-items:center; justify-content:center; cursor:zoom-out;';
+      overlay.innerHTML = `<img src="${photo}" style="max-width:92%; max-height:92%; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,.5);">`;
+      overlay.onclick = () => overlay.remove();
+      document.body.appendChild(overlay);
+    };
+
+    // ---- Pinned Messages: shows every pinned message in this chat, click to jump to it ----
+    document.getElementById('pinnedMessagesBtn').onclick = () => {
+      chatMenu.classList.remove('open');
+      if (!activeChatId){ return; }
+      const pinned = (lastRenderedEntries || []).filter(([, m]) => m.pinned);
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:250; display:flex; align-items:center; justify-content:center; padding:20px;';
+      const listHtml = pinned.length
+        ? pinned.map(([msgId, m]) => `
+            <div class="pinned-item" data-msg-id="${msgId}" style="padding:12px 14px; border-radius:12px; background:var(--hover-bg); margin-bottom:8px; cursor:pointer; font-size:.9em;">
+              ${escSafe((m.message || '').slice(0, 80))}
+            </div>`).join('')
+        : '<div style="color:var(--muted); text-align:center; padding:20px 0;">No pinned messages yet. Long-press a message and choose 📌 Pin.</div>';
+      overlay.innerHTML = `
+        <div style="background:var(--sidebar-bg); border-radius:18px; padding:20px; width:100%; max-width:360px; max-height:70vh; overflow-y:auto; box-shadow:0 20px 50px rgba(0,0,0,.3);">
+          <div style="font-weight:800; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+            <span>📌 Pinned Messages</span>
+            <span id="closePinnedBtn" style="cursor:pointer; color:var(--muted);">✕</span>
+          </div>
+          ${listHtml}
+        </div>`;
+      document.body.appendChild(overlay);
+      overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+      overlay.querySelector('#closePinnedBtn').onclick = () => overlay.remove();
+      overlay.querySelectorAll('.pinned-item').forEach(item => {
+        item.onclick = () => {
+          overlay.remove();
+          const bubble = document.querySelector(`.bubble[data-msg-id="${item.dataset.msgId}"]`);
+          if (bubble) bubble.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        };
+      });
+    };
+
+    // ---- Mute Chat: silences the unread dot / any future notification for this room ----
+    function mutedKey(roomId){ return 'sandesh_muted_' + roomId; }
+    function refreshMuteBtnLabel(){
+      if (!activeChatId) return;
+      const isMuted = localStorage.getItem(mutedKey(activeChatId)) === '1';
+      document.getElementById('muteChatBtn').textContent = isMuted ? '🔔 Unmute Chat' : '🔕 Mute Chat';
+    }
+    document.getElementById('muteChatBtn').onclick = () => {
+      chatMenu.classList.remove('open');
+      if (!activeChatId) return;
+      const isMuted = localStorage.getItem(mutedKey(activeChatId)) === '1';
+      localStorage.setItem(mutedKey(activeChatId), isMuted ? '0' : '1');
+      refreshMuteBtnLabel();
+    };
 
     // ---- Start a new chat: search the database ONLY by exact username or phone
     // number (never lists everyone) — pick a result to add them to your chat list ----
@@ -1156,6 +1221,7 @@
     window.openChat = function(otherUid, otherUser){
       activeContact = { uid: otherUid, ...otherUser };
       activeChatId = chatIdFor(currentUser.uid, otherUid);
+      refreshMuteBtnLabel();
 
       document.getElementById('emptyState').style.display = 'none';
       document.getElementById('activeChat').style.display = 'flex';
@@ -1203,14 +1269,15 @@
       // Track when I've read this room (for the other person's read receipts)
       dbSet(dbRef(rtdb, "chats/" + activeChatId + "_lastRead/" + currentUser.uid), Date.now());
 
-      let lastRenderedEntries = [];
-
       onValue(activeRoomRef, (snapshot) => {
         const box = document.getElementById('messages');
         box.innerHTML = '';
         const data = snapshot.val() || {};
         // Sort by timestamp since Realtime Database doesn't guarantee key order for this
-        const entries = Object.entries(data).sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
+        const hiddenForMe = JSON.parse(localStorage.getItem(hiddenForMeKey(activeChatId)) || '[]');
+        const entries = Object.entries(data)
+          .filter(([msgId]) => !hiddenForMe.includes(msgId))
+          .sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
         lastRenderedEntries = entries;
         entries.forEach(([msgId, m]) => {
           const mine = m.senderId === currentUser.uid;
@@ -1224,6 +1291,7 @@
             ? `<div class="reply-quote">${escapeHtml((m.replyTo.text || '').slice(0, 60))}</div>`
             : '';
           const editedTag = m.edited ? ' <span style="opacity:.6; font-size:.85em;">(edited)</span>' : '';
+          const pinnedTag = m.pinned ? '<span style="margin-right:4px;" title="Pinned">📌</span>' : '';
           const ticks = mine ? `<span class="ticks" id="ticks-${msgId}">✓</span>` : '';
 
           const reactions = m.reactions || {};
@@ -1243,7 +1311,7 @@
               ${mine ? `<span class="bubble-action-btn" data-action="edit" title="Edit">✏️</span><span class="bubble-action-btn" data-action="delete" title="Delete">🗑️</span>` : ''}
             </div>
             <div class="reaction-picker">${reactionEmojis.map(e => `<span data-emoji="${e}">${e}</span>`).join('')}</div>
-            ${replyHtml}${renderMessageContent(m.message)}${editedTag}<span class="time">${time}${ticks}</span>
+            ${replyHtml}${pinnedTag}${renderMessageContent(m.message)}${editedTag}<span class="time">${time}${ticks}</span>
             ${reactionsHtml}
           `;
           box.appendChild(bubble);
@@ -1318,9 +1386,9 @@
           const msgId = bubble.dataset.msgId;
           const action = btn.dataset.action;
           if (action === 'reply') startReply(msgId, bubble);
-          if (action === 'pin') alert('Pin message feature enabled. Backend hookup pending.');
+          if (action === 'pin') togglePin(msgId);
           if (action === 'edit') startEdit(msgId, bubble);
-          if (action === 'delete') deleteMessage(msgId);
+          if (action === 'delete') deleteMessage(msgId, bubble.classList.contains('mine'));
           if (action === 'react'){
             document.querySelectorAll('.reaction-picker.open').forEach(p => {
               if (p !== bubble.querySelector('.reaction-picker')) p.classList.remove('open');
@@ -1389,10 +1457,45 @@
       }).catch(err => { console.error(err); alert("Could not edit message."); });
     }
 
-    function deleteMessage(msgId){
-      if (!confirm("Delete this message?")) return;
+    // ---- Toggle pin on a message (stored on the message itself in Realtime Database) ----
+    function togglePin(msgId){
+      const entry = (lastRenderedEntries || []).find(([id]) => id === msgId);
+      const isPinned = entry && entry[1] && entry[1].pinned;
+      dbUpdate(dbRef(rtdb, "chats/" + activeChatId + "/" + msgId), { pinned: !isPinned })
+        .catch(err => { console.error(err); alert("Could not update pin."); });
+    }
+
+    // ---- Delete: offers "Delete for me" (hides locally only) and, for your own
+    // messages, "Delete for everyone" (removes it from Realtime Database) ----
+    function hiddenForMeKey(roomId){ return 'sandesh_hidden_' + roomId; }
+
+    function deleteForMe(msgId){
+      const key = hiddenForMeKey(activeChatId);
+      const hidden = JSON.parse(localStorage.getItem(key) || '[]');
+      if (!hidden.includes(msgId)) hidden.push(msgId);
+      localStorage.setItem(key, JSON.stringify(hidden));
+      document.querySelector(`.bubble[data-msg-id="${msgId}"]`)?.remove();
+    }
+
+    function deleteForEveryone(msgId){
       dbRemove(dbRef(rtdb, "chats/" + activeChatId + "/" + msgId))
         .catch(err => { console.error(err); alert("Could not delete message."); });
+    }
+
+    function deleteMessage(msgId, mine){
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,.3); z-index:260; display:flex; align-items:center; justify-content:center; padding:20px;';
+      overlay.innerHTML = `
+        <div style="background:var(--sidebar-bg); border-radius:16px; padding:8px; width:100%; max-width:280px; box-shadow:0 20px 50px rgba(0,0,0,.3);">
+          <button id="delForMeBtn" style="width:100%; text-align:left; padding:13px 16px; border:none; background:none; border-radius:10px; cursor:pointer; color:var(--ink); font-weight:600; font-size:.95em;">🙈 Delete for Me</button>
+          ${mine ? `<button id="delForEveryoneBtn" style="width:100%; text-align:left; padding:13px 16px; border:none; background:none; border-radius:10px; cursor:pointer; color:#e0264a; font-weight:600; font-size:.95em;">🗑️ Delete for Everyone</button>` : ''}
+          <button id="delCancelBtn" style="width:100%; text-align:left; padding:13px 16px; border:none; background:none; border-radius:10px; cursor:pointer; color:var(--muted); font-size:.95em;">Cancel</button>
+        </div>`;
+      document.body.appendChild(overlay);
+      overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+      overlay.querySelector('#delForMeBtn').onclick = () => { deleteForMe(msgId); overlay.remove(); };
+      if (mine) overlay.querySelector('#delForEveryoneBtn').onclick = () => { deleteForEveryone(msgId); overlay.remove(); };
+      overlay.querySelector('#delCancelBtn').onclick = () => overlay.remove();
     }
 
     function escapeHtml(str){
