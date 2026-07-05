@@ -132,6 +132,7 @@
 
     <a href="index.html" class="back-link">← Back to Home</a>
   </div>
+
   <!-- ===== UI logic (works even without a server / before Firebase is set up) ===== -->
   <script>
     function switchTab(tab){
@@ -178,7 +179,6 @@
     import {
       getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
       updateProfile, onAuthStateChanged, GoogleAuthProvider, signInWithPopup,
-      signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence,
       RecaptchaVerifier, signInWithPhoneNumber
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
@@ -296,7 +296,6 @@
       };
       return map[code] || "Something went wrong. Please try again.";
     }
-
     // ---- Google Sign-In ----
     async function saveGoogleUserDoc(user){
       const userRef = doc(db, "users", user.uid);
@@ -313,27 +312,10 @@
       }
     }
 
-    function isMobileBrowser(){
-      return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    }
-
     window.doGoogleLogin = async function(){
       hideError();
       if (!firebaseReady){ showError("⚠️ Firebase isn't connected yet. Paste your config in login.html first."); return; }
       const provider = new GoogleAuthProvider();
-
-      // Mobile browsers frequently block sign-in popups — redirect is far more reliable there.
-      if (isMobileBrowser()){
-        try{
-          await setPersistence(auth, browserLocalPersistence);
-          await signInWithRedirect(auth, provider);
-          // Page will reload; getRedirectResult() below handles the rest after redirect back.
-        }catch(err){
-          console.error(err);
-          showError("Could not start Google sign-in: " + (err.code || err.message || "unknown error"));
-        }
-        return;
-      }
 
       const btn = document.getElementById('googleBtn');
       btn.disabled = true;
@@ -343,7 +325,7 @@
         window.location.href = "chat.html";
       }catch(err){
         console.error(err);
-        showError("Google sign-in failed. Please try again, or use email/phone login instead.");
+        showError("Google sign-in failed (" + (err.code || "unknown") + "). Please try again.");
       }finally{
         btn.disabled = false;
       }
@@ -410,26 +392,11 @@
       }
     };
 
-    // Handle the return from Google redirect sign-in (mobile flow), then
-    // fall back to the normal "already logged in" check.
+    // If already logged in, skip straight to chat
     if (firebaseReady){
-      (async () => {
-        try{
-          const redirectResult = await getRedirectResult(auth);
-          if (redirectResult && redirectResult.user){
-            await saveGoogleUserDoc(redirectResult.user);
-            window.location.href = "chat.html";
-            return;
-          }
-        }catch(err){
-          console.error(err);
-          showError("Google sign-in failed. Please try again, or use email/phone login instead.");
-        }
-
-        onAuthStateChanged(auth, (user) => {
-          if (user) window.location.href = "chat.html";
-        });
-      })();
+      onAuthStateChanged(auth, (user) => {
+        if (user) window.location.href = "chat.html";
+      });
     }
   </script>
 </body>
