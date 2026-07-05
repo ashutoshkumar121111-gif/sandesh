@@ -56,6 +56,10 @@
   .contact-meta{flex:1; min-width:0;}
   .contact-meta .name{font-weight:700; font-size:.92em;}
   .contact-meta .last-msg{font-size:.8em; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .unread-badge{
+    width:10px; height:10px; border-radius:50%;
+    background:linear-gradient(135deg,var(--purple-1),var(--pink-1)); flex-shrink:0;
+  }
   .contact-time{font-size:.72em; color:#b3aecb;}
 
   /* ===== Chat panel ===== */
@@ -509,23 +513,65 @@
           const uid = docSnap.id;
           if (uid === currentUser.uid) return; // skip self
 
+          const roomId = chatIdFor(currentUser.uid, uid);
           const row = document.createElement('div');
           row.className = 'contact';
+          row.id = 'contact-' + uid;
           row.innerHTML = `
             <div class="avatar">${avatarInnerHtml(u)}<span class="dot ${u.online ? 'online' : ''}"></span></div>
             <div class="contact-meta">
               <div class="name">${u.name || 'Unknown'}</div>
-              <div class="last-msg">@${u.username || 'user'}</div>
+              <div class="last-msg" id="lastmsg-${uid}">@${u.username || 'user'}</div>
             </div>
+            <div class="unread-badge" id="unread-${uid}" style="display:none;"></div>
           `;
           row.onclick = () => openChat(uid, u);
           list.appendChild(row);
+
+          listenForLastMessage(uid, roomId);
         });
         if (list.innerHTML === '') list.innerHTML = '<div style="padding:20px; color:#999; font-size:.85em;">No other users yet.</div>';
       }catch(err){
         list.innerHTML = '<div style="padding:20px; color:#c0264a; font-size:.85em;">Could not load contacts. Check your Firebase config / Firestore rules.</div>';
         console.error(err);
       }
+    }
+
+    // ---- Watch each contact's chat room for the latest message, updating the
+    // preview text and an unread dot in real time (like WhatsApp's chat list) ----
+    function lastReadKey(roomId){ return 'sandesh_lastread_' + roomId; }
+
+    function listenForLastMessage(uid, roomId){
+      const roomRef = dbRef(rtdb, "chats/" + roomId);
+      onValue(roomRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return;
+        const entries = Object.values(data);
+        if (entries.length === 0) return;
+        entries.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+        const last = entries[entries.length - 1];
+
+        const lastMsgEl = document.getElementById('lastmsg-' + uid);
+        if (lastMsgEl){
+          const isMedia = /firebasestorage\.googleapis\.com|\.firebasestorage\.app/i.test(last.message || '');
+          const preview = isMedia ? '📷 Photo/Video' : (last.message || '');
+          const prefix = last.senderId === currentUser.uid ? 'You: ' : '';
+          lastMsgEl.textContent = prefix + preview;
+        }
+
+        // Show an unread dot if the newest message is from them, came after we last
+        // opened this chat, and this isn't the conversation currently open on screen
+        const lastReadTime = parseInt(localStorage.getItem(lastReadKey(roomId)) || '0', 10);
+        const isFromThem = last.senderId !== currentUser.uid;
+        const isCurrentlyOpen = activeContact && activeContact.uid === uid;
+        const isUnread = isFromThem && (last.timestamp || 0) > lastReadTime && !isCurrentlyOpen;
+        const badge = document.getElementById('unread-' + uid);
+        if (badge) badge.style.display = isUnread ? 'block' : 'none';
+
+        if (isCurrentlyOpen){
+          localStorage.setItem(lastReadKey(roomId), String(Date.now()));
+        }
+      });
     }
 
     // ---- Open a 1:1 chat and listen for messages in real time ----
@@ -543,6 +589,12 @@
       document.getElementById('chatStatus').textContent = otherUser.online ? 'online' : 'offline';
 
       document.querySelectorAll('.contact').forEach(c => c.classList.remove('active'));
+      document.getElementById('contact-' + otherUid)?.classList.add('active');
+
+      // Mark this room as "read" now, and hide its unread dot immediately
+      localStorage.setItem(lastReadKey(activeChatId), String(Date.now()));
+      const badge = document.getElementById('unread-' + otherUid);
+      if (badge) badge.style.display = 'none';
 
       // mobile: hide sidebar, show back button
       if (window.innerWidth <= 800) document.getElementById('sidebar').classList.add('hide');
