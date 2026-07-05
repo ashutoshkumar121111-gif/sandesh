@@ -247,6 +247,7 @@
         <div class="message-input">
           <button class="icon-btn" id="emojiToggleBtn" title="Emoji">😊</button>
           <button class="icon-btn" id="attachBtn" title="Attach">📎</button>
+          <input type="file" id="mediaInput" accept="image/*,video/*" style="display:none;">
           <input type="text" id="messageInput" placeholder="Write a message..." onkeydown="if(event.key==='Enter') sendMessage()">
           <button class="send-btn" onclick="sendMessage()">➤</button>
         </div>
@@ -397,7 +398,7 @@
     document.getElementById('messageInput').addEventListener('focus', () => emojiPanel.classList.remove('open'));
 
     // ---- Attach (media) — placeholder for now ----
-    document.getElementById('attachBtn').onclick = () => alert("Sending photos/videos from web is coming soon 📎");
+    document.getElementById('attachBtn').onclick = () => document.getElementById('mediaInput').click();
   </script>
 
   <!-- ===== Firebase (requires the file to be served over http/https, not opened directly) ===== -->
@@ -433,7 +434,8 @@
     const db = getFirestore(app);
     const storage = getStorage(app);
     const rtdb = getDatabase(app);
-// ---- Auth guard ----
+
+    // ---- Auth guard ----
     onAuthStateChanged(auth, (user) => {
       if (!user){
         window.location.href = "login.html";
@@ -561,7 +563,7 @@
           const bubble = document.createElement('div');
           bubble.className = 'bubble ' + (mine ? 'mine' : 'theirs');
           const time = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
-          bubble.innerHTML = `${escapeHtml(m.message || '')}<span class="time">${time}</span>`;
+          bubble.innerHTML = `${renderMessageContent(m.message)}<span class="time">${time}</span>`;
           box.appendChild(bubble);
         });
         box.scrollTop = box.scrollHeight;
@@ -574,6 +576,23 @@
       const div = document.createElement('div');
       div.textContent = str;
       return div.innerHTML;
+    }
+
+    // Detects if a message is actually a Firebase Storage media URL (photo/video)
+    // uploaded via the attach button (or the Android app) and renders it inline.
+    function renderMessageContent(message){
+      const text = message || '';
+      const isStorageUrl = /firebasestorage\.googleapis\.com|\.firebasestorage\.app/i.test(text);
+      const looksLikeVideo = /\.mp4(\?|$)/i.test(text);
+      const looksLikeImage = /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(text);
+
+      if (isStorageUrl && looksLikeVideo){
+        return `<video src="${text}" controls style="max-width:220px; border-radius:12px; display:block;"></video>`;
+      }
+      if (isStorageUrl && looksLikeImage){
+        return `<img src="${text}" style="max-width:220px; border-radius:12px; display:block; cursor:pointer;" onclick="window.open('${text}','_blank')">`;
+      }
+      return escapeHtml(text);
     }
 
     // ---- Send a message ----
@@ -596,6 +615,37 @@
         alert("Message could not be sent. Check your Firebase config / Realtime Database rules.");
       }
     };
+
+    // ---- Send a photo/video (matches the Android app's chat_media/ upload flow) ----
+    document.getElementById('mediaInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      e.target.value = ''; // reset so picking the same file again still fires 'change'
+      if (!file || !activeChatId) return;
+
+      try{
+        const roomRef = dbRef(rtdb, "chats/" + activeChatId);
+        const newMsgRef = push(roomRef);
+        const key = newMsgRef.key;
+
+        const ext = file.type.startsWith('video') ? '.mp4' : '.jpg';
+        const fileName = key + "_" + Date.now() + ext;
+        const mediaRef = ref(storage, "chat_media/" + fileName);
+
+        await uploadBytes(mediaRef, file);
+        const downloadUrl = await getDownloadURL(mediaRef);
+
+        // The Android app stores the media URL directly in the "message" field —
+        // the receiving side detects it's a link and renders it as an image/video.
+        await dbSet(newMsgRef, {
+          message: downloadUrl,
+          senderId: currentUser.uid,
+          timestamp: Date.now()
+        });
+      }catch(err){
+        console.error(err);
+        alert("Could not send media. Check your Firebase Storage rules.");
+      }
+    });
 
   </script>
 </body>
