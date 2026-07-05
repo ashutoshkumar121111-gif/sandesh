@@ -67,24 +67,6 @@
     width:10px; height:10px; border-radius:50%;
     background:linear-gradient(135deg,var(--purple-1),var(--pink-1)); flex-shrink:0;
   }
-  .contact-menu-wrap{position:relative; flex-shrink:0;}
-  .contact-menu-btn{
-    width:26px; height:26px; border-radius:50%; border:none; background:transparent;
-    color:var(--muted); font-size:1.1em; cursor:pointer;
-  }
-  .contact-dropdown{
-    position:absolute; top:28px; right:0; background:#fff; border-radius:12px;
-    box-shadow:0 12px 30px rgba(90,50,180,.18); padding:6px; min-width:150px; z-index:30;
-    display:none; flex-direction:column;
-  }
-  .contact-dropdown.open{display:flex;}
-  .contact-dropdown button{
-    background:none; border:none; text-align:left; padding:9px 12px; border-radius:8px;
-    font-size:.85em; font-weight:600; color:var(--ink); cursor:pointer;
-  }
-  .contact-dropdown button:hover{background:#f4f1ff;}
-  .contact-dropdown .block-btn{color:#c0264a;}
-  .contact-dropdown .block-btn:hover{background:#ffe4ea;}
   .contact-time{font-size:.72em; color:#b3aecb;}
 
   /* ===== Chat panel ===== */
@@ -347,6 +329,15 @@
           <button class="icon-btn" id="chatSearchBtn" title="Search messages">🔍</button>
           <button class="icon-btn" title="Audio call" onclick="alert('Audio call coming soon 📞')">📞</button>
           <button class="icon-btn" title="Video call" onclick="alert('Video call coming soon 🎥')">🎥</button>
+          <div class="menu-wrap">
+            <button class="icon-btn" id="chatMenuBtn">⋮</button>
+            <div class="dropdown-menu" id="chatMenu">
+              <button id="viewProfileBtn">👤 View Profile</button>
+              <button id="blockUserBtn">🚫 Block User</button>
+              <button id="unblockUserBtn">🔓 Unblock User</button>
+              <button id="clearChatBtn">🗑️ Clear Chat</button>
+            </div>
+          </div>
         </div>
         <div class="chat-search-bar" id="chatSearchBar">
           <input type="text" id="chatSearchInput" placeholder="Search in this chat...">
@@ -771,21 +762,7 @@
               <div class="last-msg" id="lastmsg-${uid}">@${u.username || 'user'}</div>
             </div>
             <div class="unread-badge" id="unread-${uid}" style="display:none;"></div>
-            <div class="contact-menu-wrap">
-              <button class="contact-menu-btn" title="More">⋮</button>
-              <div class="contact-dropdown">
-                <button class="delete-chat-btn">🗑️ Delete Chat</button>
-                <button class="block-btn">🚫 Block</button>
-              </div>
-            </div>
-          `;
-          row.querySelector('.contact-menu-btn').onclick = (e) => {
-            e.stopPropagation();
-            document.querySelectorAll('.contact-dropdown.open').forEach(d => { if (d !== row.querySelector('.contact-dropdown')) d.classList.remove('open'); });
-            row.querySelector('.contact-dropdown').classList.toggle('open');
-          };
-          row.querySelector('.delete-chat-btn').onclick = (e) => { e.stopPropagation(); deleteChatWith(uid, u); };
-          row.querySelector('.block-btn').onclick = (e) => { e.stopPropagation(); blockUser(uid, u); };
+            `;
           row.onclick = () => openChat(uid, u);
           list.appendChild(row);
 
@@ -976,7 +953,7 @@
           bubble.innerHTML = `
             <div class="bubble-actions">
               <span class="bubble-action-btn" data-action="react" title="React">😊</span>
-              <span class="bubble-action-btn" data-action="reply" title="Reply">↩️</span>
+              <span class="bubble-action-btn" data-action="reply" title="Reply">↩️</span><span class="bubble-action-btn" data-action="pin" title="Pin">📌</span>
               ${mine ? `<span class="bubble-action-btn" data-action="edit" title="Edit">✏️</span><span class="bubble-action-btn" data-action="delete" title="Delete">🗑️</span>` : ''}
             </div>
             <div class="reaction-picker">${reactionEmojis.map(e => `<span data-emoji="${e}">${e}</span>`).join('')}</div>
@@ -1055,6 +1032,7 @@
           const msgId = bubble.dataset.msgId;
           const action = btn.dataset.action;
           if (action === 'reply') startReply(msgId, bubble);
+          if (action === 'pin') alert('Pin message feature enabled. Backend hookup pending.');
           if (action === 'edit') startEdit(msgId, bubble);
           if (action === 'delete') deleteMessage(msgId);
           if (action === 'react'){
