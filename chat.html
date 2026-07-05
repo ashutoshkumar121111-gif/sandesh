@@ -68,8 +68,17 @@
   .chat-panel-header .status{font-size:.78em; color:var(--muted);}
   .messages{
     flex:1; overflow-y:auto; padding:26px; display:flex; flex-direction:column; gap:10px;
-    background:linear-gradient(180deg,#faf8ff,#f4f1ff);
+    background-color:#f6f3ff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%23d9cdf7' stroke-width='2'%3E%3Cpath d='M20 30c0-6 5-10 11-10h10c6 0 11 4 11 10s-5 10-11 10h-4l-6 6v-6h-0c-6 0-11-4-11-10z'/%3E%3Cpath d='M120 25c4-6 12-6 15 0 4-6 12-6 15 0 3 5-1 9-15 18-14-9-18-13-15-18z'/%3E%3Cpath d='M40 110l6-14 6 14-6-4z'/%3E%3Cpath d='M100 100c0-5 4-9 10-9h8c5 0 9 4 9 9s-4 9-9 9h-3l-5 5v-5h0c-5 0-10-4-10-9z'/%3E%3Cpath d='M60 60l3-7 3 7-3-2z'/%3E%3Cpath d='M135 130l3-7 3 7-3-2z'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat:repeat;
   }
+  .emoji-panel{
+    display:none; flex-wrap:wrap; gap:6px; padding:10px 20px; background:#fff;
+    border-top:1px solid #eee5ff; max-height:140px; overflow-y:auto;
+  }
+  .emoji-panel.open{display:flex;}
+  .emoji-panel span{font-size:1.3em; cursor:pointer; padding:4px; border-radius:8px;}
+  .emoji-panel span:hover{background:#f4f1ff;}
   .bubble{
     max-width:60%; padding:10px 16px; border-radius:16px; font-size:.92em; line-height:1.4;
     word-wrap:break-word;
@@ -227,16 +236,21 @@
         <div class="chat-panel-header">
           <button class="icon-btn back-btn" id="backBtn">←</button>
           <div class="avatar" id="chatAvatar">?</div>
-          <div>
+          <div style="flex:1;">
             <div class="name" id="chatName">—</div>
             <div class="status" id="chatStatus">offline</div>
           </div>
+          <button class="icon-btn" title="Audio call" onclick="alert('Audio call coming soon 📞')">📞</button>
+          <button class="icon-btn" title="Video call" onclick="alert('Video call coming soon 🎥')">🎥</button>
         </div>
         <div class="messages" id="messages"></div>
         <div class="message-input">
-          <input type="text" id="messageInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()">
+          <button class="icon-btn" id="emojiToggleBtn" title="Emoji">😊</button>
+          <button class="icon-btn" id="attachBtn" title="Attach">📎</button>
+          <input type="text" id="messageInput" placeholder="Write a message..." onkeydown="if(event.key==='Enter') sendMessage()">
           <button class="send-btn" onclick="sendMessage()">➤</button>
         </div>
+        <div class="emoji-panel" id="emojiPanel"></div>
       </div>
 
       <!-- ===== Profile View ===== -->
@@ -247,7 +261,11 @@
           <div class="handle" id="myHandle">@username</div>
           <button class="btn-edit" id="editProfileBtn">Edit Profile</button>
         </div>
-        <!-- ===== Edit Profile Modal ===== -->
+      </div>
+    </main>
+  </div>
+
+  <!-- ===== Edit Profile Modal ===== -->
   <div class="modal-overlay" id="editModal">
     <div class="modal-box">
       <h3>Edit Profile</h3>
@@ -361,6 +379,25 @@
         row.style.display = name.includes(term) ? 'flex' : 'none';
       });
     });
+
+    // ---- Emoji picker ----
+    const emojiList = ["😀","😂","😍","🥰","😎","😭","😡","👍","🙏","🔥","❤️","🎉","😢","😴","🤔","😏","💔","😁","😉","😇","😜","😋","😔","😷","🤤","😱","😳","🥳","🤩"];
+    const emojiPanel = document.getElementById('emojiPanel');
+    emojiList.forEach(emoji => {
+      const span = document.createElement('span');
+      span.textContent = emoji;
+      span.onclick = () => {
+        const input = document.getElementById('messageInput');
+        input.value += emoji;
+        input.focus();
+      };
+      emojiPanel.appendChild(span);
+    });
+    document.getElementById('emojiToggleBtn').onclick = () => emojiPanel.classList.toggle('open');
+    document.getElementById('messageInput').addEventListener('focus', () => emojiPanel.classList.remove('open'));
+
+    // ---- Attach (media) — placeholder for now ----
+    document.getElementById('attachBtn').onclick = () => alert("Sending photos/videos from web is coming soon 📎");
   </script>
 
   <!-- ===== Firebase (requires the file to be served over http/https, not opened directly) ===== -->
@@ -368,12 +405,14 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
-      getFirestore, collection, query, orderBy, onSnapshot,
-      addDoc, doc, setDoc, getDocs, serverTimestamp, limit
+      getFirestore, collection, doc, setDoc, getDocs
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import {
       getStorage, ref, uploadBytes, getDownloadURL
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+    import {
+      getDatabase, ref as dbRef, push, set as dbSet, onValue, off
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     // =========================================================
     // 🔧 PASTE YOUR FIREBASE CONFIG HERE — must match login.html
@@ -393,8 +432,8 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     const storage = getStorage(app);
-
-    // ---- Auth guard ----
+    const rtdb = getDatabase(app);
+// ---- Auth guard ----
     onAuthStateChanged(auth, (user) => {
       if (!user){
         window.location.href = "login.html";
@@ -450,9 +489,10 @@
       }catch(err){ console.error(err); }
     }
 
-    // ---- Deterministic chat ID for a 1:1 conversation between two UIDs ----
+    // ---- Deterministic chat "room" ID — must match the Android app exactly:
+    // smaller UID (string comparison) first, concatenated directly with NO separator.
     function chatIdFor(uidA, uidB){
-      return [uidA, uidB].sort().join('_');
+      return uidA < uidB ? (uidA + uidB) : (uidB + uidA);
     }
 
     // ---- Load all other users from "users" collection (same collection your app writes to) ----
@@ -487,6 +527,9 @@
     }
 
     // ---- Open a 1:1 chat and listen for messages in real time ----
+    // Uses Firebase Realtime Database at chats/{room} to match the Android app exactly.
+    let activeRoomRef = null;
+
     window.openChat = function(otherUid, otherUser){
       activeContact = { uid: otherUid, ...otherUser };
       activeChatId = chatIdFor(currentUser.uid, otherUid);
@@ -502,27 +545,23 @@
       // mobile: hide sidebar, show back button
       if (window.innerWidth <= 800) document.getElementById('sidebar').classList.add('hide');
 
-      if (unsubscribeMessages) unsubscribeMessages();
+      // Stop listening to the previous room, if any
+      if (activeRoomRef) off(activeRoomRef);
 
-      // Ensure the chat "room" doc exists (adjust structure to match your app's schema if different)
-      setDoc(doc(db, "chats", activeChatId), {
-        participants: [currentUser.uid, otherUid],
-        updatedAt: serverTimestamp()
-      }, { merge: true });
+      activeRoomRef = dbRef(rtdb, "chats/" + activeChatId);
 
-      const messagesRef = collection(db, "chats", activeChatId, "messages");
-      const q = query(messagesRef, orderBy("timestamp", "asc"), limit(200));
-
-      unsubscribeMessages = onSnapshot(q, (snapshot) => {
+      onValue(activeRoomRef, (snapshot) => {
         const box = document.getElementById('messages');
         box.innerHTML = '';
-        snapshot.forEach(docSnap => {
-          const m = docSnap.data();
+        const data = snapshot.val() || {};
+        // Sort by timestamp since Realtime Database doesn't guarantee key order for this
+        const entries = Object.entries(data).sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
+        entries.forEach(([msgId, m]) => {
           const mine = m.senderId === currentUser.uid;
           const bubble = document.createElement('div');
           bubble.className = 'bubble ' + (mine ? 'mine' : 'theirs');
-          const time = m.timestamp?.toDate ? m.timestamp.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
-          bubble.innerHTML = `${escapeHtml(m.text || '')}<span class="time">${time}</span>`;
+          const time = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+          bubble.innerHTML = `${escapeHtml(m.message || '')}<span class="time">${time}</span>`;
           box.appendChild(bubble);
         });
         box.scrollTop = box.scrollHeight;
@@ -545,24 +584,19 @@
       input.value = '';
 
       try{
-        await addDoc(collection(db, "chats", activeChatId, "messages"), {
+        const roomRef = dbRef(rtdb, "chats/" + activeChatId);
+        const newMsgRef = push(roomRef);
+        await dbSet(newMsgRef, {
+          message: text,
           senderId: currentUser.uid,
-          text: text,
-          timestamp: serverTimestamp()
+          timestamp: Date.now()
         });
-        await setDoc(doc(db, "chats", activeChatId), {
-          lastMessage: text,
-          updatedAt: serverTimestamp()
-        }, { merge: true });
       }catch(err){
         console.error(err);
-        alert("Message could not be sent. Check your Firebase config / Firestore rules.");
+        alert("Message could not be sent. Check your Firebase config / Realtime Database rules.");
       }
     };
 
   </script>
 </body>
 </html>
-      </div>
-    </main>
-  </div>
