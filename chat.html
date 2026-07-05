@@ -808,7 +808,7 @@
       getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, query, where
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import {
-      getStorage, ref, uploadBytes, getDownloadURL
+      getStorage, ref, uploadBytes, getDownloadURL, deleteObject
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
     import {
       getDatabase, ref as dbRef, push, set as dbSet, update as dbUpdate,
@@ -881,10 +881,21 @@
       try{
         let photoURL = currentProfileData.photoURL || "";
         const file = editPhotoInput.files[0];
+        const oldPhotoURL = currentProfileData.photoURL || "";
         if (file){
-          const photoRef = ref(storage, `profile_photos/${currentUser.uid}.jpg`);
+          // Unique filename per upload — reusing the same path keeps the same
+          // download-token URL, so the browser caches the OLD photo forever.
+          const photoRef = ref(storage, `profile_photos/${currentUser.uid}_${Date.now()}.jpg`);
           await uploadBytes(photoRef, file);
           photoURL = await getDownloadURL(photoRef);
+          if (oldPhotoURL && oldPhotoURL.includes(`profile_photos%2F${currentUser.uid}_`)){
+            try{
+              const oldPath = decodeURIComponent(oldPhotoURL.split('/o/')[1].split('?')[0]);
+              await deleteObject(ref(storage, oldPath));
+            }catch(cleanupErr){
+              console.warn("Could not clean up old profile photo:", cleanupErr);
+            }
+          }
         }
         await setDoc(doc(db, "users", currentUser.uid), {
           name, username, photoURL
