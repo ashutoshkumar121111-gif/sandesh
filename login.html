@@ -94,17 +94,17 @@
         <input type="file" id="signupPhoto" accept="image/*" style="display:none;">
       </div>
       <label>Full Name</label>
-      <input type="text" id="signupName" placeholder="Your name">
+      <input type="text" id="signupName" placeholder="Your name" autocomplete="off">
       <label>Username</label>
-      <input type="text" id="signupUsername" placeholder="e.g. ashu (without @)">
+      <input type="text" id="signupUsername" placeholder="e.g. ashu (without @)" autocomplete="off">
       <label>Phone Number</label>
-      <input type="tel" id="signupPhone" placeholder="e.g. 9876543210">
+      <input type="tel" id="signupPhone" placeholder="e.g. 9876543210" autocomplete="off">
       <label>Date of Birth</label>
-      <input type="date" id="signupDob">
+      <input type="date" id="signupDob" autocomplete="off">
       <label>Email</label>
-      <input type="email" id="signupEmail" placeholder="you@example.com">
+      <input type="email" id="signupEmail" placeholder="you@example.com" autocomplete="new-email" name="signup-email-field">
       <label>Password</label>
-      <input type="password" id="signupPassword" placeholder="Min 6 characters">
+      <input type="password" id="signupPassword" placeholder="Min 6 characters" autocomplete="new-password">
       <button class="btn-primary" id="signupBtn" onclick="doSignup()">Create Account</button>
     </div>
 
@@ -279,7 +279,7 @@
         });
         window.location.href = "chat.html";
       }catch(err){
-        showError(friendlyError(err.code));
+        showError(friendlyError(err.code) + " (Email used: " + email + ")");
       }finally{
         btn.disabled = false; btn.textContent = "Create Account";
       }
@@ -296,6 +296,7 @@
       };
       return map[code] || "Something went wrong. Please try again.";
     }
+
     // ---- Google Sign-In ----
     async function saveGoogleUserDoc(user){
       const userRef = doc(db, "users", user.uid);
