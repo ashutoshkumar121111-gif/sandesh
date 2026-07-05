@@ -19,9 +19,9 @@
   *{box-sizing:border-box;}
   html,body{height:100%; margin:0;}
   body{font-family:'Segoe UI', Arial, sans-serif; color:var(--ink); background:var(--bg-lav); display:flex; flex-direction:column;}
-
+ 
   .app{display:flex; flex:1; min-height:0;}
-
+ 
   /* ===== Sidebar ===== */
   .sidebar{
     width:340px; background:var(--sidebar-bg); border-right:1px solid var(--border-c);
@@ -68,7 +68,7 @@
     background:linear-gradient(135deg,var(--purple-1),var(--pink-1)); flex-shrink:0;
   }
   .contact-time{font-size:.72em; color:#b3aecb;}
-
+ 
   /* ===== Chat panel ===== */
   .chat-panel{flex:1; display:flex; flex-direction:column; min-width:0;}
   .chat-panel-header{
@@ -100,7 +100,7 @@
     align-self:flex-end; border-bottom-right-radius:4px;
   }
   .bubble .time{display:block; font-size:.68em; opacity:.7; margin-top:4px;}
-
+ 
   .message-input{
     display:flex; gap:10px; padding:16px 20px; background:var(--sidebar-bg); border-top:1px solid var(--border-c);
   }
@@ -119,7 +119,7 @@
     color:var(--muted); gap:10px; text-align:center; padding:20px;
   }
   .empty-state .big{font-size:3em;}
-
+ 
   @media (max-width:800px){
     .sidebar{position:absolute; z-index:10; height:100%; width:100%; transform:translateX(0); transition:.3s;}
     .sidebar.hide{transform:translateX(-100%);}
@@ -127,7 +127,7 @@
     .back-btn{display:inline-flex !important;}
   }
   .back-btn{display:none; align-items:center; justify-content:center;}
-
+ 
   .menu-wrap{position:relative;}
   .dropdown-menu{
     position:absolute; top:44px; right:0; background:#fff; border-radius:14px;
@@ -140,7 +140,7 @@
     font-size:.9em; font-weight:600; color:var(--ink); cursor:pointer;
   }
   .dropdown-menu button:hover{background:#f4f1ff; color:var(--purple-1);}
-
+ 
   /* ===== Profile view ===== */
   .profile-view{
     flex:1; display:none; flex-direction:column; align-items:center; padding:50px 20px;
@@ -174,7 +174,7 @@
   .bottom-tabs a.active .tab-icon{
     background:#f2ecff; padding:6px 16px; border-radius:20px;
   }
-
+ 
   /* ===== Edit Profile Modal ===== */
   .modal-overlay{
     position:fixed; inset:0; background:rgba(20,10,40,.45); display:none;
@@ -205,7 +205,7 @@
   }
   .modal-cancel{background:#f4f1ff; color:var(--ink);}
   .modal-save{background:linear-gradient(135deg,var(--purple-1),var(--pink-1)); color:#fff;}
-
+ 
   /* ===== Reply preview bar ===== */
   .reply-preview-bar{
     display:none; align-items:center; gap:10px; padding:8px 20px; background:var(--hover-bg);
@@ -214,7 +214,7 @@
   .reply-preview-bar.show{display:flex;}
   .reply-preview-bar .reply-preview-text{flex:1; color:var(--muted); border-left:3px solid var(--purple-1); padding-left:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .reply-preview-bar button{background:none; border:none; font-size:1.1em; cursor:pointer; color:var(--muted);}
-
+ 
   /* ===== Bubble hover / long-press actions ===== */
   .bubble{position:relative;}
   .bubble-actions{
@@ -234,7 +234,7 @@
   .bubble.theirs .reply-quote{border-left-color:var(--purple-1); background:rgba(106,61,245,.06);}
   .ticks{margin-left:4px;}
   .ticks.read{color:#7fe0ff;}
-
+ 
   /* ===== Reactions ===== */
   .reaction-picker{
     position:absolute; top:-50px; display:none; gap:4px; background:var(--card); border-radius:20px;
@@ -251,14 +251,14 @@
     font-size:.78em; cursor:pointer; display:inline-flex; align-items:center; gap:3px; color:var(--ink);
   }
   .reaction-badge.mine-reacted{border-color:var(--purple-1); background:var(--active-bg);}
-
+ 
   /* ===== Typing indicator ===== */
   .typing-dots{display:inline-flex; gap:2px; align-items:center; vertical-align:middle;}
   .typing-dots span{width:5px; height:5px; border-radius:50%; background:var(--purple-1); animation:typingBlink 1s infinite ease-in-out;}
   .typing-dots span:nth-child(2){animation-delay:.15s;}
   .typing-dots span:nth-child(3){animation-delay:.3s;}
   @keyframes typingBlink{0%,60%,100%{opacity:.25;} 30%{opacity:1;}}
-
+ 
   /* ===== Voice message recording ===== */
   .recording-bar{display:none; align-items:center; gap:12px; padding:16px 20px; background:var(--sidebar-bg); border-top:1px solid var(--border-c);}
   .recording-bar.show{display:flex;}
@@ -268,7 +268,7 @@
   .recording-cancel{margin-left:auto; background:none; border:none; color:var(--muted); font-weight:700; cursor:pointer; font-size:.9em;}
   .recording-send{background:linear-gradient(135deg,var(--purple-1),var(--pink-1)); color:#fff; border:none; border-radius:50%; width:38px; height:38px; cursor:pointer; flex-shrink:0;}
   audio.voice-msg{max-width:220px; height:36px;}
-
+ 
   /* ===== Chat search bar ===== */
   .chat-search-bar{display:none; align-items:center; gap:8px; padding:10px 20px; background:var(--sidebar-bg); border-bottom:1px solid var(--border-c);}
   .chat-search-bar.show{display:flex;}
@@ -279,7 +279,7 @@
 </style>
 </head>
 <body>
-
+ 
   <div class="app">
     <!-- ===== Sidebar ===== -->
     <aside class="sidebar" id="sidebar">
@@ -303,21 +303,21 @@
       <div class="contact-list" id="contactList">
         <!-- contacts populated by JS -->
       </div>
-
+ 
       <!-- Chat / Profile switch, sits at the bottom of the sidebar -->
       <div class="bottom-tabs" id="bottomTabs">
         <a href="javascript:void(0)" class="active" id="tabChatBtn"><span class="tab-icon">💬</span>Chat</a>
         <a href="profile.html" id="tabProfileBtn"><span class="tab-icon">👤</span>Profile</a>
       </div>
     </aside>
-
+ 
     <!-- ===== Chat Panel ===== -->
     <main class="chat-panel">
       <div id="emptyState" class="empty-state">
         <div class="big">💬</div>
         <div><strong>Select a conversation</strong><br>Pick someone from the list to start chatting.</div>
       </div>
-
+ 
       <div id="activeChat" style="display:none; flex-direction:column; height:100%;">
         <div class="chat-panel-header">
           <button class="icon-btn back-btn" id="backBtn">←</button>
@@ -366,7 +366,7 @@
         </div>
         <div class="emoji-panel" id="emojiPanel"></div>
       </div>
-
+ 
       <!-- ===== Profile View ===== -->
       <div id="profileView" class="profile-view">
         <div class="profile-card">
@@ -378,7 +378,7 @@
       </div>
     </main>
   </div>
-
+ 
   <!-- ===== Edit Profile Modal ===== -->
   <div class="modal-overlay" id="editModal">
     <div class="modal-box">
@@ -400,7 +400,24 @@
       </div>
     </div>
   </div>
-
+ 
+  <!-- ===== View Contact Profile Modal ===== -->
+  <div class="modal-overlay" id="viewProfileModal">
+    <div class="modal-box" style="text-align:center;">
+      <div class="modal-photo-wrap">
+        <div class="modal-photo-circle" id="viewProfilePhotoWrap" style="cursor:default; border-style:solid;">
+          <img id="viewProfilePhoto" src="" alt="" style="display:none;">
+          <span id="viewProfilePlaceholder"></span>
+        </div>
+      </div>
+      <h3 id="viewProfileName" style="margin:0 0 4px;">—</h3>
+      <div class="handle" id="viewProfileHandle" style="color:var(--muted); margin-bottom:20px;">@username</div>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="viewProfileCloseBtn">Close</button>
+      </div>
+    </div>
+  </div>
+ 
   <!-- ===== UI-only logic (menu, tabs, modal) — works even without a server ===== -->
   <script>
     // Shared state (also used/updated by the Firebase module script below)
@@ -409,11 +426,11 @@
     let activeContact = null;
     let unsubscribeMessages = null;
     let currentProfileData = {};
-
+ 
     function initials(name){
       return (name || '?').trim().split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
     }
-
+ 
     // Renders a real profile photo if the user doc has one (checks a few common
     // field names in case your mobile app uses a different key), otherwise falls
     // back to colored initials.
@@ -424,12 +441,30 @@
       }
       return initials(user.name);
     }
-
-    // ---- 3-dot dropdown menu ----
+ 
+    // ---- 3-dot dropdown menu (sidebar header) ----
     const menuBtn = document.getElementById('menuBtn');
     const dropdownMenu = document.getElementById('dropdownMenu');
     menuBtn.onclick = (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('open'); };
-
+ 
+    // ---- 3-dot dropdown menu (chat header) ----
+    const chatMenuBtn = document.getElementById('chatMenuBtn');
+    const chatMenu = document.getElementById('chatMenu');
+    const blockUserBtn = document.getElementById('blockUserBtn');
+    const unblockUserBtn = document.getElementById('unblockUserBtn');
+ 
+    chatMenuBtn.onclick = (e) => {
+      e.stopPropagation();
+      dropdownMenu.classList.remove('open');
+      // Show block/unblock correctly based on current contact's blocked state
+      if (activeContact){
+        const isBlocked = !!(window.blockedUids && window.blockedUids[activeContact.uid]);
+        blockUserBtn.style.display = isBlocked ? 'none' : 'block';
+        unblockUserBtn.style.display = isBlocked ? 'block' : 'none';
+      }
+      chatMenu.classList.toggle('open');
+    };
+ 
     // ---- Dark mode toggle ----
     const darkModeBtn = document.getElementById('darkModeBtn');
     function applyDarkMode(on){
@@ -439,16 +474,21 @@
     }
     applyDarkMode(localStorage.getItem('sandesh_dark_mode') === '1');
     darkModeBtn.onclick = () => applyDarkMode(!document.body.classList.contains('dark'));
-    document.addEventListener('click', () => dropdownMenu.classList.remove('open'));
-
+ 
+    // Close any open dropdown menu when clicking outside of it
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#menuBtn')) dropdownMenu.classList.remove('open');
+      if (!e.target.closest('#chatMenuBtn')) chatMenu.classList.remove('open');
+    });
+ 
     document.getElementById('settingsBtn').onclick = () => window.location.href = 'settings.html';
-
+ 
     document.getElementById('backBtn').onclick = () => {
       document.getElementById('sidebar').classList.remove('hide');
       document.getElementById('activeChat').style.display = 'none';
       document.getElementById('emptyState').style.display = 'flex';
     };
-
+ 
     // ---- Show/hide Chat vs Profile views ----
     function showChatView(){
       document.getElementById('profileView').classList.remove('active');
@@ -459,13 +499,13 @@
       document.getElementById('tabProfileBtn')?.classList.remove('active');
     }
     document.getElementById('tabChatBtn').onclick = showChatView;
-
+ 
     // ---- Edit Profile modal (open/cancel/photo preview are pure UI) ----
     const editModal = document.getElementById('editModal');
     const editPhotoInput = document.getElementById('editPhotoInput');
     const editPhotoPreview = document.getElementById('editPhotoPreview');
     const editPhotoPlaceholder = document.getElementById('editPhotoPlaceholder');
-
+ 
     document.getElementById('editProfileBtn').onclick = () => {
       document.getElementById('editNameInput').value = currentProfileData.name || '';
       document.getElementById('editUsernameInput').value = currentProfileData.username || '';
@@ -480,9 +520,9 @@
       editPhotoInput.value = '';
       editModal.classList.add('open');
     };
-
+ 
     document.getElementById('editCancelBtn').onclick = () => editModal.classList.remove('open');
-
+ 
     editPhotoInput.addEventListener('change', () => {
       const file = editPhotoInput.files[0];
       if (!file) return;
@@ -494,7 +534,28 @@
       };
       reader.readAsDataURL(file);
     });
-
+ 
+    // ---- View Contact Profile modal ----
+    const viewProfileModal = document.getElementById('viewProfileModal');
+    document.getElementById('viewProfileBtn').onclick = () => {
+      chatMenu.classList.remove('open');
+      if (!activeContact) return;
+      const photo = activeContact.imageurl || activeContact.photoURL || activeContact.photoUrl || activeContact.profileImage || activeContact.avatar || activeContact.image;
+      const photoImg = document.getElementById('viewProfilePhoto');
+      const placeholder = document.getElementById('viewProfilePlaceholder');
+      if (photo){
+        photoImg.src = photo; photoImg.style.display = 'block'; placeholder.style.display = 'none';
+      } else {
+        photoImg.style.display = 'none'; placeholder.style.display = 'block';
+        placeholder.textContent = initials(activeContact.name);
+        placeholder.style.fontSize = '1.6em'; placeholder.style.fontWeight = '700'; placeholder.style.color = 'var(--purple-1)';
+      }
+      document.getElementById('viewProfileName').textContent = activeContact.name || 'Unknown';
+      document.getElementById('viewProfileHandle').textContent = '@' + (activeContact.username || 'user');
+      viewProfileModal.classList.add('open');
+    };
+    document.getElementById('viewProfileCloseBtn').onclick = () => viewProfileModal.classList.remove('open');
+ 
     // ---- Simple contact search ----
     document.getElementById('searchInput').addEventListener('input', (e) => {
       const term = e.target.value.toLowerCase();
@@ -503,7 +564,7 @@
         row.style.display = name.includes(term) ? 'flex' : 'none';
       });
     });
-
+ 
     // ---- Emoji picker ----
     const emojiList = ["😀","😂","😍","🥰","😎","😭","😡","👍","🙏","🔥","❤️","🎉","😢","😴","🤔","😏","💔","😁","😉","😇","😜","😋","😔","😷","🤤","😱","😳","🥳","🤩"];
     const emojiPanel = document.getElementById('emojiPanel');
@@ -519,10 +580,10 @@
     });
     document.getElementById('emojiToggleBtn').onclick = () => emojiPanel.classList.toggle('open');
     document.getElementById('messageInput').addEventListener('focus', () => emojiPanel.classList.remove('open'));
-
+ 
     // ---- Attach (media) — placeholder for now ----
     document.getElementById('attachBtn').onclick = () => document.getElementById('mediaInput').click();
-
+ 
     // ---- Simple notification sound (Web Audio beep, no external file needed) ----
     function playNotificationSound(){
       try{
@@ -539,7 +600,7 @@
       }catch(e){}
     }
     window.playNotificationSound = playNotificationSound;
-
+ 
     // ---- Ask permission for desktop notifications (best-effort, on first click) ----
     if ('Notification' in window && Notification.permission === 'default'){
       document.addEventListener('click', function askOnce(){
@@ -547,20 +608,20 @@
         document.removeEventListener('click', askOnce);
       }, { once: true });
     }
-
+ 
     // ---- Search inside the currently open chat ----
     const chatSearchBtn = document.getElementById('chatSearchBtn');
     const chatSearchBar = document.getElementById('chatSearchBar');
     const chatSearchInput = document.getElementById('chatSearchInput');
     const chatSearchCount = document.getElementById('chatSearchCount');
-
+ 
     function clearChatSearch(){
       chatSearchInput.value = '';
       chatSearchCount.textContent = '';
       document.querySelectorAll('#messages .bubble').forEach(b => b.classList.remove('search-hide'));
     }
     window.clearChatSearch = clearChatSearch;
-
+ 
     chatSearchBtn.onclick = () => {
       chatSearchBar.classList.toggle('show');
       if (chatSearchBar.classList.contains('show')) chatSearchInput.focus();
@@ -584,7 +645,7 @@
       chatSearchCount.textContent = count ? `${count} found` : 'No results';
       if (firstMatch) firstMatch.scrollIntoView({ block: 'center' });
     });
-
+ 
     // ---- Long-press on a bubble to reveal reply/react/edit/delete on touch devices ----
     (function(){
       let pressTimer = null;
@@ -611,7 +672,7 @@
       }, { passive: true });
     })();
   </script>
-
+ 
   <!-- ===== Firebase (requires the file to be served over http/https, not opened directly) ===== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -626,7 +687,7 @@
       getDatabase, ref as dbRef, push, set as dbSet, update as dbUpdate,
       onValue, off, remove as dbRemove, onDisconnect, serverTimestamp as dbServerTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
+ 
     // =========================================================
     // 🔧 PASTE YOUR FIREBASE CONFIG HERE — must match login.html
     // =========================================================
@@ -640,13 +701,13 @@
       appId: "1:642211479662:web:1eb6f4d34a61d076b3a67f",
       measurementId: "G-40WGJPN5ND"
     };
-
+ 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const storage = getStorage(app);
     const rtdb = getDatabase(app);
-
+ 
     // ---- Auth guard ----
     onAuthStateChanged(auth, (user) => {
       if (!user){
@@ -655,9 +716,10 @@
       }
       currentUser = user;
       loadContacts();
+      populateMyProfile();
       setupPresence(user.uid);
     });
-
+ 
     // ---- Real online/offline presence, using Realtime Database's connection state ----
     function setupPresence(uid){
       const myStatusRef = dbRef(rtdb, "presence/" + uid);
@@ -669,7 +731,7 @@
         }
       });
     }
-
+ 
     // Watch another user's live presence and update the given elements
     function watchPresence(uid, dotEl, statusTextEl){
       onValue(dbRef(rtdb, "presence/" + uid), (snap) => {
@@ -679,15 +741,15 @@
         if (statusTextEl) statusTextEl.textContent = isOnline ? 'online' : 'offline';
       });
     }
-
+ 
     document.getElementById('logoutBtn').onclick = () => signOut(auth).then(()=> window.location.href = "login.html");
-
+ 
     document.getElementById('editSaveBtn').onclick = async () => {
       const saveBtn = document.getElementById('editSaveBtn');
       const name = document.getElementById('editNameInput').value.trim();
       const username = document.getElementById('editUsernameInput').value.trim().replace(/^@/, '');
       if (!name || !username){ alert("Name and username can't be empty."); return; }
-
+ 
       saveBtn.disabled = true; saveBtn.textContent = "Saving...";
       try{
         let photoURL = currentProfileData.photoURL || "";
@@ -700,7 +762,7 @@
         await setDoc(doc(db, "users", currentUser.uid), {
           name, username, photoURL
         }, { merge: true });
-
+ 
         currentProfileData = { ...currentProfileData, name, username, photoURL };
         populateMyProfile();
         editModal.classList.remove('open');
@@ -711,12 +773,11 @@
         saveBtn.disabled = false; saveBtn.textContent = "Save";
       }
     };
-
+ 
     async function populateMyProfile(){
       try{
-        const mySnap = await getDocs(query(collection(db, "users")));
-        let myData = null;
-        mySnap.forEach(d => { if (d.id === currentUser.uid) myData = d.data(); });
+        const mySnap = await getDoc(doc(db, "users", currentUser.uid));
+        const myData = mySnap.exists() ? mySnap.data() : null;
         currentProfileData = myData || {};
         document.getElementById('myName').textContent = myData?.name || currentUser.displayName || 'Unknown';
         document.getElementById('myHandle').textContent = '@' + (myData?.username || 'user');
@@ -725,16 +786,17 @@
         else { avatarEl.style.display = 'none'; }
       }catch(err){ console.error(err); }
     }
-
+ 
     // ---- Deterministic chat "room" ID — must match the Android app exactly:
     // smaller UID (string comparison) first, concatenated directly with NO separator.
     function chatIdFor(uidA, uidB){
       return uidA < uidB ? (uidA + uidB) : (uidB + uidA);
     }
-
+ 
     // ---- Load all other users from "users" collection (same collection your app writes to) ----
     let blockedUids = {};
-
+    window.blockedUids = blockedUids;
+ 
     async function loadContacts(){
       const list = document.getElementById('contactList');
       list.innerHTML = '<div style="padding:20px; color:#999; font-size:.85em;">Loading contacts…</div>';
@@ -742,7 +804,8 @@
         // Load who I've blocked, so they're hidden from my list
         const mySnap = await getDoc(doc(db, "users", currentUser.uid));
         blockedUids = (mySnap.exists() && mySnap.data().blocked) || {};
-
+        window.blockedUids = blockedUids;
+ 
         const snap = await getDocs(collection(db, "users"));
         list.innerHTML = '';
         snap.forEach(docSnap => {
@@ -750,7 +813,7 @@
           const uid = docSnap.id;
           if (uid === currentUser.uid) return; // skip self
           if (blockedUids[uid]) return; // skip blocked users
-
+ 
           const roomId = chatIdFor(currentUser.uid, uid);
           const row = document.createElement('div');
           row.className = 'contact';
@@ -765,7 +828,7 @@
             `;
           row.onclick = () => openChat(uid, u);
           list.appendChild(row);
-
+ 
           listenForLastMessage(uid, roomId, u.name || 'Unknown');
           watchPresence(uid, document.getElementById('dot-' + uid), null);
         });
@@ -775,16 +838,14 @@
         console.error(err);
       }
     }
-
-    document.addEventListener('click', () => {
-      document.querySelectorAll('.contact-dropdown.open').forEach(d => d.classList.remove('open'));
-    });
-
+ 
     // ---- Block a user: hides them from your contact list (one-directional) ----
     async function blockUser(uid, u){
       if (!confirm(`Block ${u.name || 'this user'}? You won't see them in your chat list anymore.`)) return;
       try{
         await updateDoc(doc(db, "users", currentUser.uid), { ["blocked." + uid]: true });
+        blockedUids[uid] = true;
+        window.blockedUids = blockedUids;
         document.getElementById('contact-' + uid)?.remove();
         if (activeContact && activeContact.uid === uid) showChatView();
       }catch(err){
@@ -792,7 +853,21 @@
         alert("Could not block user. Check your Firebase config / Firestore rules.");
       }
     }
-
+ 
+    // ---- Unblock a user: brings them back into your contact list ----
+    async function unblockUser(uid){
+      try{
+        await updateDoc(doc(db, "users", currentUser.uid), { ["blocked." + uid]: false });
+        delete blockedUids[uid];
+        window.blockedUids = blockedUids;
+        await loadContacts();
+        alert("User unblocked.");
+      }catch(err){
+        console.error(err);
+        alert("Could not unblock user. Check your Firebase config / Firestore rules.");
+      }
+    }
+ 
     // ---- Delete a chat's message history (clears it for both sides, since it's a shared room) ----
     async function deleteChatWith(uid, u){
       if (!confirm(`Delete all messages with ${u.name || 'this user'}? This can't be undone.`)) return;
@@ -809,11 +884,26 @@
         alert("Could not delete chat. Check your Firebase Realtime Database rules.");
       }
     }
-
+ 
+    // ---- Wire chat header menu actions (block / unblock / clear chat) to the
+    // currently open contact, now that blockUser/unblockUser/deleteChatWith exist ----
+    document.getElementById('blockUserBtn').addEventListener('click', () => {
+      chatMenu.classList.remove('open');
+      if (activeContact) blockUser(activeContact.uid, activeContact);
+    });
+    document.getElementById('unblockUserBtn').addEventListener('click', () => {
+      chatMenu.classList.remove('open');
+      if (activeContact) unblockUser(activeContact.uid);
+    });
+    document.getElementById('clearChatBtn').addEventListener('click', () => {
+      chatMenu.classList.remove('open');
+      if (activeContact) deleteChatWith(activeContact.uid, activeContact);
+    });
+ 
     // ---- Watch each contact's chat room for the latest message, updating the
     // preview text and an unread dot in real time (like WhatsApp's chat list) ----
     function lastReadKey(roomId){ return 'sandesh_lastread_' + roomId; }
-
+ 
     function listenForLastMessage(uid, roomId, contactName){
       const roomRef = dbRef(rtdb, "chats/" + roomId);
       let isFirstSnapshot = true;
@@ -825,17 +915,17 @@
         if (entries.length === 0){ isFirstSnapshot = false; return; }
         entries.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
         const last = entries[entries.length - 1];
-
+ 
         const isMedia = /firebasestorage\.googleapis\.com|\.firebasestorage\.app/i.test(last.message || '');
         const isAudio = /\.(webm|ogg|mp3|wav|m4a)(\?|$)/i.test(last.message || '');
         const preview = isMedia ? (isAudio ? '🎤 Voice message' : '📷 Photo/Video') : (last.message || '');
-
+ 
         const lastMsgEl = document.getElementById('lastmsg-' + uid);
         if (lastMsgEl){
           const prefix = last.senderId === currentUser.uid ? 'You: ' : '';
           lastMsgEl.textContent = prefix + preview;
         }
-
+ 
         // Show an unread dot if the newest message is from them, came after we last
         // opened this chat, and this isn't the conversation currently open on screen
         const lastReadTime = parseInt(localStorage.getItem(lastReadKey(roomId)) || '0', 10);
@@ -844,11 +934,11 @@
         const isUnread = isFromThem && (last.timestamp || 0) > lastReadTime && !isCurrentlyOpen;
         const badge = document.getElementById('unread-' + uid);
         if (badge) badge.style.display = isUnread ? 'block' : 'none';
-
+ 
         if (isCurrentlyOpen){
           localStorage.setItem(lastReadKey(roomId), String(Date.now()));
         }
-
+ 
         // Notification sound + desktop notification for genuinely new incoming messages
         if (!isFirstSnapshot && isFromThem && (last.timestamp || 0) > lastSeenTimestamp){
           if (!isCurrentlyOpen || document.hidden){
@@ -862,27 +952,27 @@
         isFirstSnapshot = false;
       });
     }
-
+ 
     // ---- Open a 1:1 chat and listen for messages in real time ----
     // Uses Firebase Realtime Database at chats/{room} to match the Android app exactly.
     let activeRoomRef = null;
-
+ 
     window.openChat = function(otherUid, otherUser){
       activeContact = { uid: otherUid, ...otherUser };
       activeChatId = chatIdFor(currentUser.uid, otherUid);
-
+ 
       document.getElementById('emptyState').style.display = 'none';
       document.getElementById('activeChat').style.display = 'flex';
       document.getElementById('chatAvatar').innerHTML = avatarInnerHtml(otherUser);
       document.getElementById('chatName').textContent = otherUser.name || 'Unknown';
-
+ 
       // Reset any open search when switching chats
       if (window.clearChatSearch) window.clearChatSearch();
       document.getElementById('chatSearchBar').classList.remove('show');
-
+ 
       // Cancel any pending reply/recording when switching chats
       cancelReply();
-
+ 
       // Combined presence + typing indicator for the header status line
       if (otherPresenceRef) off(otherPresenceRef);
       otherPresenceRef = dbRef(rtdb, "presence/" + otherUid);
@@ -897,28 +987,28 @@
         otherIsTyping = snap.val() === true;
         renderChatStatus();
       });
-
+ 
       document.querySelectorAll('.contact').forEach(c => c.classList.remove('active'));
       document.getElementById('contact-' + otherUid)?.classList.add('active');
-
+ 
       // Mark this room as "read" now, and hide its unread dot immediately
       localStorage.setItem(lastReadKey(activeChatId), String(Date.now()));
       const badge = document.getElementById('unread-' + otherUid);
       if (badge) badge.style.display = 'none';
-
+ 
       // mobile: hide sidebar, show back button
       if (window.innerWidth <= 800) document.getElementById('sidebar').classList.add('hide');
-
+ 
       // Stop listening to the previous room, if any
       if (activeRoomRef) off(activeRoomRef);
-
+ 
       activeRoomRef = dbRef(rtdb, "chats/" + activeChatId);
-
+ 
       // Track when I've read this room (for the other person's read receipts)
       dbSet(dbRef(rtdb, "chats/" + activeChatId + "_lastRead/" + currentUser.uid), Date.now());
-
+ 
       let lastRenderedEntries = [];
-
+ 
       onValue(activeRoomRef, (snapshot) => {
         const box = document.getElementById('messages');
         box.innerHTML = '';
@@ -933,13 +1023,13 @@
           bubble.dataset.msgId = msgId;
           bubble.dataset.rawText = m.message || '';
           const time = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
-
+ 
           const replyHtml = m.replyTo
             ? `<div class="reply-quote">${escapeHtml((m.replyTo.text || '').slice(0, 60))}</div>`
             : '';
           const editedTag = m.edited ? ' <span style="opacity:.6; font-size:.85em;">(edited)</span>' : '';
           const ticks = mine ? `<span class="ticks" id="ticks-${msgId}">✓</span>` : '';
-
+ 
           const reactions = m.reactions || {};
           const reactionCounts = {};
           Object.values(reactions).forEach(e => { reactionCounts[e] = (reactionCounts[e] || 0) + 1; });
@@ -949,7 +1039,7 @@
                 `<span class="reaction-badge ${emo === myReaction ? 'mine-reacted' : ''}" data-emoji="${emo}">${emo}${count > 1 ? ' ' + count : ''}</span>`
               ).join('') + `</div>`
             : '';
-
+ 
           bubble.innerHTML = `
             <div class="bubble-actions">
               <span class="bubble-action-btn" data-action="react" title="React">😊</span>
@@ -968,7 +1058,7 @@
       }, (err) => {
         console.error(err);
       });
-
+ 
       // Real-time read receipts: watch the other person's "lastRead" time and
       // mark my sent messages as ✓✓ (read) once it passes each message's timestamp
       let theirLastReadTime = 0;
@@ -976,7 +1066,7 @@
         theirLastReadTime = snap.val() || 0;
         refreshReadTicks();
       });
-
+ 
       function refreshReadTicks(){
         lastRenderedEntries.forEach(([msgId, m]) => {
           if (m.senderId !== currentUser.uid) return;
@@ -988,18 +1078,18 @@
         });
       }
     };
-
+ 
     // ---- Reply / Edit / Delete / React actions on message bubbles ----
     let replyingTo = null;
     const reactionEmojis = ['❤️','👍','😂','😮','😢','🙏'];
-
+ 
     // ---- Typing indicator state ----
     let typingTimeout = null;
     let otherTypingRef = null;
     let otherPresenceRef = null;
     let otherIsOnline = false;
     let otherIsTyping = false;
-
+ 
     function renderChatStatus(){
       const statusEl = document.getElementById('chatStatus');
       if (!statusEl) return;
@@ -1009,12 +1099,12 @@
         statusEl.textContent = otherIsOnline ? 'online' : 'offline';
       }
     }
-
+ 
     function clearTypingState(){
       clearTimeout(typingTimeout);
       if (activeChatId) dbSet(dbRef(rtdb, "typing/" + activeChatId + "/" + currentUser.uid), false).catch(()=>{});
     }
-
+ 
     document.getElementById('messageInput').addEventListener('input', () => {
       if (!activeChatId) return;
       dbSet(dbRef(rtdb, "typing/" + activeChatId + "/" + currentUser.uid), true).catch(()=>{});
@@ -1023,7 +1113,7 @@
         dbSet(dbRef(rtdb, "typing/" + activeChatId + "/" + currentUser.uid), false).catch(()=>{});
       }, 2000);
     });
-
+ 
     function wireBubbleActions(){
       document.querySelectorAll('.bubble-action-btn').forEach(btn => {
         btn.onclick = (e) => {
@@ -1059,13 +1149,13 @@
         };
       });
     }
-
+ 
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.reaction-picker') && !e.target.closest('[data-action="react"]')){
         document.querySelectorAll('.reaction-picker.open').forEach(p => p.classList.remove('open'));
       }
     });
-
+ 
     // ---- Toggle my reaction on a message: same emoji again removes it ----
     function toggleReaction(msgId, emoji){
       const reactionRef = dbRef(rtdb, "chats/" + activeChatId + "/" + msgId + "/reactions/" + currentUser.uid);
@@ -1078,7 +1168,7 @@
         }
       }, { onlyOnce: true });
     }
-
+ 
     function startReply(msgId, bubble){
       const text = (bubble.dataset.rawText || bubble.textContent || '').trim();
       replyingTo = { msgId, text: text.slice(0, 80) };
@@ -1087,15 +1177,14 @@
       preview.querySelector('.reply-preview-text').textContent = replyingTo.text;
       document.getElementById('messageInput').focus();
     }
-
+ 
     function cancelReply(){
       replyingTo = null;
       document.getElementById('replyPreview').classList.remove('show');
     }
     document.getElementById('cancelReplyBtn').onclick = cancelReply;
-
+ 
     function startEdit(msgId, bubble){
-      const current = bubble.querySelector('.bubble-actions').nextSibling; // rough text extraction fallback
       const newText = prompt("Edit message:", bubble.dataset.rawText || '');
       if (newText === null || !newText.trim()) return;
       dbUpdate(dbRef(rtdb, "chats/" + activeChatId + "/" + msgId), {
@@ -1103,19 +1192,19 @@
         edited: true
       }).catch(err => { console.error(err); alert("Could not edit message."); });
     }
-
+ 
     function deleteMessage(msgId){
       if (!confirm("Delete this message?")) return;
       dbRemove(dbRef(rtdb, "chats/" + activeChatId + "/" + msgId))
         .catch(err => { console.error(err); alert("Could not delete message."); });
     }
-
+ 
     function escapeHtml(str){
       const div = document.createElement('div');
       div.textContent = str;
       return div.innerHTML;
     }
-
+ 
     // Detects if a message is actually a Firebase Storage media URL (photo/video)
     // uploaded via the attach button (or the Android app) and renders it inline.
     function renderMessageContent(message){
@@ -1124,7 +1213,7 @@
       const looksLikeVideo = /\.mp4(\?|$)/i.test(text);
       const looksLikeImage = /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(text);
       const looksLikeAudio = /\.(webm|ogg|mp3|wav|m4a)(\?|$)/i.test(text);
-
+ 
       if (isStorageUrl && looksLikeVideo){
         return `<video src="${text}" controls style="max-width:220px; border-radius:12px; display:block;"></video>`;
       }
@@ -1136,7 +1225,7 @@
       }
       return escapeHtml(text);
     }
-
+ 
     // ---- Send a message ----
     window.sendMessage = async function(){
       const input = document.getElementById('messageInput');
@@ -1146,7 +1235,7 @@
       const replyData = replyingTo ? { msgId: replyingTo.msgId, text: replyingTo.text } : null;
       cancelReply();
       clearTypingState();
-
+ 
       try{
         const roomRef = dbRef(rtdb, "chats/" + activeChatId);
         const newMsgRef = push(roomRef);
@@ -1162,25 +1251,25 @@
         alert("Message could not be sent. Check your Firebase config / Realtime Database rules.");
       }
     };
-
+ 
     // ---- Send a photo/video (matches the Android app's chat_media/ upload flow) ----
     document.getElementById('mediaInput').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       e.target.value = ''; // reset so picking the same file again still fires 'change'
       if (!file || !activeChatId) return;
-
+ 
       try{
         const roomRef = dbRef(rtdb, "chats/" + activeChatId);
         const newMsgRef = push(roomRef);
         const key = newMsgRef.key;
-
+ 
         const ext = file.type.startsWith('video') ? '.mp4' : '.jpg';
         const fileName = key + "_" + Date.now() + ext;
         const mediaRef = ref(storage, "chat_media/" + fileName);
-
+ 
         await uploadBytes(mediaRef, file);
         const downloadUrl = await getDownloadURL(mediaRef);
-
+ 
         // The Android app stores the media URL directly in the "message" field —
         // the receiving side detects it's a link and renders it as an image/video.
         await dbSet(newMsgRef, {
@@ -1193,18 +1282,18 @@
         alert("Could not send media. Check your Firebase Storage rules.");
       }
     });
-
+ 
     // ---- Voice messages: record with MediaRecorder, upload like photo/video ----
     let mediaRecorder = null;
     let recordedChunks = [];
     let recordingStartTime = 0;
     let recordingTimerInterval = null;
-
+ 
     const micBtn = document.getElementById('micBtn');
     const recordingBar = document.getElementById('recordingBar');
     const messageInputBar = document.getElementById('messageInputBar');
     const recordingTimeEl = document.getElementById('recordingTime');
-
+ 
     micBtn.onclick = async () => {
       if (!activeChatId) return;
       try{
@@ -1225,7 +1314,7 @@
         alert("Could not access microphone. Please allow mic permission.");
       }
     };
-
+ 
     function stopRecording(){
       clearInterval(recordingTimerInterval);
       recordingBar.classList.remove('show');
@@ -1235,13 +1324,13 @@
         mediaRecorder.stream.getTracks().forEach(t => t.stop());
       }
     }
-
+ 
     document.getElementById('recordingCancelBtn').onclick = () => {
       if (mediaRecorder) mediaRecorder.ondataavailable = null;
       recordedChunks = [];
       stopRecording();
     };
-
+ 
     document.getElementById('recordingSendBtn').onclick = () => {
       if (!mediaRecorder) return;
       mediaRecorder.onstop = async () => {
