@@ -294,6 +294,19 @@
   .chat-search-bar .search-count{font-size:.78em; color:var(--muted); white-space:nowrap;}
   .chat-search-bar button{background:none; border:none; font-size:1.1em; cursor:pointer; color:var(--muted);}
   .bubble.search-hide{display:none;}
+
+  /* ===== New Chat search results ===== */
+  #newChatResults{max-height:220px; overflow-y:auto; margin:2px 0 16px;}
+  #newChatResults .search-hint{font-size:.82em; color:var(--muted); padding:6px 2px;}
+  .new-chat-result{display:flex; align-items:center; gap:10px; padding:8px 2px; border-bottom:1px solid var(--border-c);}
+  .new-chat-result .avatar{width:36px; height:36px; font-size:.8em;}
+  .new-chat-result .info{flex:1; min-width:0;}
+  .new-chat-result .info .name{font-weight:700; font-size:.9em;}
+  .new-chat-result .info .handle{font-size:.78em; color:var(--muted);}
+  .new-chat-result .chat-with-btn{
+    padding:6px 14px; font-size:.8em; border-radius:14px; border:none; cursor:pointer;
+    background:linear-gradient(135deg,var(--purple-1),var(--pink-1)); color:#fff; font-weight:700;
+  }
 </style>
 </head>
 <body>
@@ -304,6 +317,7 @@
       <div class="sidebar-header">
         <a href="index.html" class="brand"><img src="logo.png" alt="Sandesh"> Sandesh</a>
         <div style="display:flex; gap:6px; align-items:center;">
+          <button class="icon-btn" id="newChatBtn" title="New Chat (search by phone number)">➕</button>
           <button class="icon-btn" id="darkModeBtn" title="Toggle dark mode">🌙</button>
           <div class="menu-wrap">
             <button class="icon-btn" id="menuBtn" title="Menu">⋮</button>
@@ -347,6 +361,13 @@
           <button class="icon-btn" id="chatSearchBtn" title="Search messages">🔍</button>
           <button class="icon-btn" title="Audio call" onclick="alert('Audio call coming soon 📞')">📞</button>
           <button class="icon-btn" title="Video call" onclick="alert('Video call coming soon 🎥')">🎥</button>
+          <div class="menu-wrap" id="chatMenuWrap">
+            <button class="icon-btn" id="chatMenuBtn" title="More">⋮</button>
+            <div class="dropdown-menu" id="chatDropdownMenu">
+              <button id="chatDeleteBtn">🗑️ Delete Chat</button>
+              <button id="chatBlockBtn" style="color:#c0264a;">🚫 Block</button>
+            </div>
+          </div>
         </div>
         <div class="chat-search-bar" id="chatSearchBar">
           <input type="text" id="chatSearchInput" placeholder="Search in this chat...">
@@ -410,6 +431,20 @@
     </div>
   </div>
 
+  <!-- ===== New Chat Modal: search a user by phone number ===== -->
+  <div class="modal-overlay" id="newChatModal">
+    <div class="modal-box">
+      <h3>Start New Chat</h3>
+      <label>Phone Number</label>
+      <input type="text" id="newChatPhoneInput" placeholder="Enter phone number" inputmode="tel">
+      <div id="newChatResults"></div>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="newChatCancelBtn">Cancel</button>
+        <button class="modal-save" id="newChatSearchBtn">Search</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== UI-only logic (menu, tabs, modal) — works even without a server ===== -->
   <script>
     // Shared state (also used/updated by the Firebase module script below)
@@ -457,8 +492,7 @@
       document.getElementById('activeChat').style.display = 'none';
       document.getElementById('emptyState').style.display = 'flex';
     };
-
-    // ---- Show/hide Chat vs Profile views ----
+// ---- Show/hide Chat vs Profile views ----
     function showChatView(){
       document.getElementById('profileView').classList.remove('active');
       document.getElementById('sidebar').style.display = 'flex';
@@ -548,8 +582,7 @@
       }catch(e){}
     }
     window.playNotificationSound = playNotificationSound;
-
-    // ---- Ask permission for desktop notifications (best-effort, on first click) ----
+// ---- Ask permission for desktop notifications (best-effort, on first click) ----
     if ('Notification' in window && Notification.permission === 'default'){
       document.addEventListener('click', function askOnce(){
         Notification.requestPermission();
@@ -679,14 +712,144 @@
       });
     }
 
-    // Watch another user's live presence and update the given elements
+    // Watch another user's live presence and update the given elements.
+    // Checks a few common field name/shape variants in case the field differs.
+    function isPresenceOnline(p){
+      if (!p) return false;
+      if (p.online === true) return true;
+      if (p.isOnline === true) return true;
+      if (typeof p.status === 'string' && p.status.toLowerCase() === 'online') return true;
+      return false;
+    }
     function watchPresence(uid, dotEl, statusTextEl){
       onValue(dbRef(rtdb, "presence/" + uid), (snap) => {
-        const p = snap.val();
-        const isOnline = !!(p && p.online);
+        const isOnline = isPresenceOnline(snap.val());
         if (dotEl) dotEl.classList.toggle('online', isOnline);
         if (statusTextEl) statusTextEl.textContent = isOnline ? 'online' : 'offline';
       });
+    }
+
+    // ---- New Chat: search a user by phone number and start chatting ----
+    // Note: assumes the phone number is stored on the user doc under one of these
+    // common field names — tell me the real field name if this doesn't find matches.
+    document.getElementById('newChatBtn').onclick = () => {
+      document.getElementById('newChatPhoneInput').value = '';
+      document.getElementById('newChatResults').innerHTML = '';
+      document.getElementById('newChatModal').classList.add('open');
+      document.getElementById('newChatPhoneInput').focus();
+    };
+    document.getElementById('newChatCancelBtn').onclick = () => {
+      document.getElementById('newChatModal').classList.remove('open');
+    };
+
+    async function runPhoneSearch(){
+      const term = document.getElementById('newChatPhoneInput').value.trim();
+      const resultsBox = document.getElementById('newChatResults');
+      if (!term){ resultsBox.innerHTML = '<div class="search-hint">Enter a phone number to search.</div>'; return; }
+      resultsBox.innerHTML = '<div class="search-hint">Searching…</div>';
+      try{
+        const snap = await getDocs(collection(db, "users"));
+        const matches = [];
+        snap.forEach(docSnap => {
+          const uid = docSnap.id;
+          if (uid === currentUser.uid) return;
+          const u = docSnap.data();
+          const phone = String(u.phone || u.phoneNumber || u.mobile || u.mobileNumber || u.number || u.contact || '');
+          if (phone && phone.replace(/\s+/g,'').includes(term.replace(/\s+/g,''))) matches.push({ uid, ...u });
+        });
+        if (matches.length === 0){
+          resultsBox.innerHTML = '<div class="search-hint">No user found with that number.</div>';
+          return;
+        }
+        resultsBox.innerHTML = '';
+        matches.forEach(u => {
+          const row = document.createElement('div');
+          row.className = 'new-chat-result';
+          row.innerHTML = `
+            <div class="avatar">${avatarInnerHtml(u)}</div>
+            <div class="info">
+              <div class="name">${u.name || 'Unknown'}</div>
+              <div class="handle">@${u.username || 'user'}</div>
+            </div>
+            <button class="chat-with-btn">Chat</button>
+          `;
+          row.querySelector('.chat-with-btn').onclick = () => startNewChatWith(u.uid, u);
+          resultsBox.appendChild(row);
+        });
+      }catch(err){
+        console.error(err);
+        resultsBox.innerHTML = '<div class="search-hint" style="color:#c0264a;">Search failed. Check your Firestore rules.</div>';
+      }
+    }
+    document.getElementById('newChatSearchBtn').onclick = runPhoneSearch;
+    document.getElementById('newChatPhoneInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') runPhoneSearch(); });
+
+    // ---- Adds each other as contacts (so the chat shows up in both people's lists) then opens it ----
+    async function startNewChatWith(uid, u){
+      try{
+        await setDoc(doc(db, "users", currentUser.uid, "contacts", uid), { addedAt: Date.now() });
+        await setDoc(doc(db, "users", uid, "contacts", currentUser.uid), { addedAt: Date.now() });
+      }catch(err){
+        console.error(err);
+        // Writing to the other person's contacts subcollection may be blocked by
+        // Firestore rules — the chat will still work, just proceed with my side.
+      }
+      document.getElementById('newChatModal').classList.remove('open');
+      await loadContacts();
+      openChat(uid, u);
+    }
+
+    document.getElementById('logoutBtn').onclick = () => signOut(auth).then(()=> window.location.href = "login.html");
+
+    document.getElementById('editSaveBtn').onclick = async () => {
+      const saveBtn = document.getElementById('editSaveBtn');
+      const name = document.getElementById('editNameInput').value.trim();
+      const username = document.getElementById('editUsernameInput').value.trim().replace(/^@/, '');
+      if (!name || !username){ alert("Name and username can't be empty."); return; }
+
+      saveBtn.disabled = true; saveBtn.textContent = "Saving...";
+      try{
+        let photoURL = currentProfileData.photoURL || "";
+        const file = editPhotoInput.files[0];
+        if (file){
+          const photoRef = ref(storage, `profile_photos/${currentUser.uid}.jpg`);
+          await uploadBytes(photoRef, file);
+          photoURL = await getDownloadURL(photoRef);
+        }
+        await setDoc(doc(db, "users", currentUser.uid), {
+          name, username, photoURL
+        }, { merge: true });
+
+        currentProfileData = { ...currentProfileData, name, username, photoURL };
+        populateMyProfile();
+        editModal.classList.remove('open');
+      }catch(err){
+        console.error(err);
+        alert("Could not save profile. Check your Firebase config / Storage rules.");
+      }finally{
+        saveBtn.disabled = false; saveBtn.textContent = "Save";
+      }
+    };
+
+    async function populateMyProfile(){
+      try{
+        const mySnap = await getDocs(query(collection(db, "users")));
+        let myData = null;
+        mySnap.forEach(d => { if (d.id === currentUser.uid) myData = d.data(); });
+        currentProfileData = myData || {};
+        document.getElementById('myName').textContent = myData?.name || currentUser.displayName || 'Unknown';
+        document.getElementById('myHandle').textContent = '@' + (myData?.username || 'user');
+        const avatarEl = document.getElementById('myAvatar');
+        if (myData?.photoURL){ avatarEl.src = myData.photoURL; avatarEl.style.display = 'block'; }
+        else { avatarEl.style.display = 'none'; }
+      }catch(err){ console.error(err); }
+    }
+// Writing to the other person's contacts subcollection may be blocked by
+        // Firestore rules — the chat will still work, just proceed with my side.
+      }
+      document.getElementById('newChatModal').classList.remove('open');
+      await loadContacts();
+      openChat(uid, u);
     }
 
     document.getElementById('logoutBtn').onclick = () => signOut(auth).then(()=> window.location.href = "login.html");
@@ -741,8 +904,27 @@
       return uidA < uidB ? (uidA + uidB) : (uidB + uidA);
     }
 
-    // ---- Load all other users from "users" collection (same collection your app writes to) ----
+    // ---- Load only MY contacts (users/{me}/contacts subcollection) — NOT every user in the DB.
+    // People are added here automatically once you start a chat with them via "New Chat" search. ----
     let blockedUids = {};
+
+    function buildContactRow(uid, u){
+      const roomId = chatIdFor(currentUser.uid, uid);
+      const row = document.createElement('div');
+      row.className = 'contact';
+      row.id = 'contact-' + uid;
+      row.dataset.lastTs = '0';
+      row.innerHTML = `
+        <div class="avatar">${avatarInnerHtml(u)}<span class="dot" id="dot-${uid}"></span></div>
+        <div class="contact-meta">
+          <div class="name">${u.name || 'Unknown'}</div>
+          <div class="last-msg" id="lastmsg-${uid}">@${u.username || 'user'}</div>
+        </div>
+        <div class="unread-badge" id="unread-${uid}" style="display:none;"></div>
+      `;
+      row.onclick = () => openChat(uid, u);
+      return { row, roomId };
+    }
 
     async function loadContacts(){
       const list = document.getElementById('contactList');
@@ -752,247 +934,34 @@
         const mySnap = await getDoc(doc(db, "users", currentUser.uid));
         blockedUids = (mySnap.exists() && mySnap.data().blocked) || {};
 
-        const snap = await getDocs(collection(db, "users"));
+        const contactsSnap = await getDocs(collection(db, "users", currentUser.uid, "contacts"));
         list.innerHTML = '';
-        snap.forEach(docSnap => {
-          const u = docSnap.data();
-          const uid = docSnap.id;
-          if (uid === currentUser.uid) return; // skip self
-          if (blockedUids[uid]) return; // skip blocked users
 
-          const roomId = chatIdFor(currentUser.uid, uid);
-          const row = document.createElement('div');
-          row.className = 'contact';
-          row.id = 'contact-' + uid;
-          row.innerHTML = `
-            <div class="avatar">${avatarInnerHtml(u)}<span class="dot" id="dot-${uid}"></span></div>
-            <div class="contact-meta">
-              <div class="name">${u.name || 'Unknown'}</div>
-              <div class="last-msg" id="lastmsg-${uid}">@${u.username || 'user'}</div>
-            </div>
-            <div class="unread-badge" id="unread-${uid}" style="display:none;"></div>
-            <div class="contact-menu-wrap">
-              <button class="contact-menu-btn" title="More">⋮</button>
-              <div class="contact-dropdown">
-                <button class="delete-chat-btn">🗑️ Delete Chat</button>
-                <button class="block-btn">🚫 Block</button>
-              </div>
-            </div>
-          `;
-          row.querySelector('.contact-menu-btn').onclick = (e) => {
-            e.stopPropagation();
-            document.querySelectorAll('.contact-dropdown.open').forEach(d => { if (d !== row.querySelector('.contact-dropdown')) d.classList.remove('open'); });
-            row.querySelector('.contact-dropdown').classList.toggle('open');
-          };
-          row.querySelector('.delete-chat-btn').onclick = (e) => { e.stopPropagation(); deleteChatWith(uid, u); };
-          row.querySelector('.block-btn').onclick = (e) => { e.stopPropagation(); blockUser(uid, u); };
-          row.onclick = () => openChat(uid, u);
+        for (const contactDoc of contactsSnap.docs){
+          const uid = contactDoc.id;
+          if (uid === currentUser.uid) continue;
+          if (blockedUids[uid]) continue;
+
+          const userDoc = await getDoc(doc(db, "users", uid));
+          if (!userDoc.exists()) continue;
+          const u = userDoc.data();
+
+          const { row, roomId } = buildContactRow(uid, u);
           list.appendChild(row);
 
           listenForLastMessage(uid, roomId, u.name || 'Unknown');
           watchPresence(uid, document.getElementById('dot-' + uid), null);
-        });
-        if (list.innerHTML === '') list.innerHTML = '<div style="padding:20px; color:#999; font-size:.85em;">No other users yet.</div>';
+        }
+
+        if (list.innerHTML === ''){
+          list.innerHTML = '<div style="padding:24px 20px; color:#999; font-size:.85em; text-align:center; line-height:1.6;">No conversations yet.<br>Tap <strong>➕ New Chat</strong> above and search a phone number to start chatting.</div>';
+        }
       }catch(err){
         list.innerHTML = '<div style="padding:20px; color:#c0264a; font-size:.85em;">Could not load contacts. Check your Firebase config / Firestore rules.</div>';
         console.error(err);
       }
     }
-
-    document.addEventListener('click', () => {
-      document.querySelectorAll('.contact-dropdown.open').forEach(d => d.classList.remove('open'));
-    });
-
-    // ---- Block a user: hides them from your contact list (one-directional) ----
-    async function blockUser(uid, u){
-      if (!confirm(`Block ${u.name || 'this user'}? You won't see them in your chat list anymore.`)) return;
-      try{
-        await updateDoc(doc(db, "users", currentUser.uid), { ["blocked." + uid]: true });
-        document.getElementById('contact-' + uid)?.remove();
-        if (activeContact && activeContact.uid === uid) showChatView();
-      }catch(err){
-        console.error(err);
-        alert("Could not block user. Check your Firebase config / Firestore rules.");
-      }
-    }
-
-    // ---- Delete a chat's message history (clears it for both sides, since it's a shared room) ----
-    async function deleteChatWith(uid, u){
-      if (!confirm(`Delete all messages with ${u.name || 'this user'}? This can't be undone.`)) return;
-      try{
-        const roomId = chatIdFor(currentUser.uid, uid);
-        await dbRemove(dbRef(rtdb, "chats/" + roomId));
-        const lastMsgEl = document.getElementById('lastmsg-' + uid);
-        if (lastMsgEl) lastMsgEl.textContent = '@' + (u.username || 'user');
-        if (activeContact && activeContact.uid === uid){
-          document.getElementById('messages').innerHTML = '';
-        }
-      }catch(err){
-        console.error(err);
-        alert("Could not delete chat. Check your Firebase Realtime Database rules.");
-      }
-    }
-
-    // ---- Watch each contact's chat room for the latest message, updating the
-    // preview text and an unread dot in real time (like WhatsApp's chat list) ----
-    function lastReadKey(roomId){ return 'sandesh_lastread_' + roomId; }
-
-    function listenForLastMessage(uid, roomId, contactName){
-      const roomRef = dbRef(rtdb, "chats/" + roomId);
-      let isFirstSnapshot = true;
-      let lastSeenTimestamp = 0;
-      onValue(roomRef, (snapshot) => {
-        const data = snapshot.val();
-        if (!data){ isFirstSnapshot = false; return; }
-        const entries = Object.values(data);
-        if (entries.length === 0){ isFirstSnapshot = false; return; }
-        entries.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-        const last = entries[entries.length - 1];
-
-        const isMedia = /firebasestorage\.googleapis\.com|\.firebasestorage\.app/i.test(last.message || '');
-        const isAudio = /\.(webm|ogg|mp3|wav|m4a)(\?|$)/i.test(last.message || '');
-        const preview = isMedia ? (isAudio ? '🎤 Voice message' : '📷 Photo/Video') : (last.message || '');
-
-        const lastMsgEl = document.getElementById('lastmsg-' + uid);
-        if (lastMsgEl){
-          const prefix = last.senderId === currentUser.uid ? 'You: ' : '';
-          lastMsgEl.textContent = prefix + preview;
-        }
-
-        // Show an unread dot if the newest message is from them, came after we last
-        // opened this chat, and this isn't the conversation currently open on screen
-        const lastReadTime = parseInt(localStorage.getItem(lastReadKey(roomId)) || '0', 10);
-        const isFromThem = last.senderId !== currentUser.uid;
-        const isCurrentlyOpen = activeContact && activeContact.uid === uid;
-        const isUnread = isFromThem && (last.timestamp || 0) > lastReadTime && !isCurrentlyOpen;
-        const badge = document.getElementById('unread-' + uid);
-        if (badge) badge.style.display = isUnread ? 'block' : 'none';
-
-        if (isCurrentlyOpen){
-          localStorage.setItem(lastReadKey(roomId), String(Date.now()));
-        }
-
-        // Notification sound + desktop notification for genuinely new incoming messages
-        if (!isFirstSnapshot && isFromThem && (last.timestamp || 0) > lastSeenTimestamp){
-          if (!isCurrentlyOpen || document.hidden){
-            if (window.playNotificationSound) window.playNotificationSound();
-            if ('Notification' in window && Notification.permission === 'granted'){
-              try{ new Notification(contactName || 'New message', { body: preview, icon: 'logo.png' }); }catch(e){}
-            }
-          }
-        }
-        lastSeenTimestamp = Math.max(lastSeenTimestamp, last.timestamp || 0);
-        isFirstSnapshot = false;
-      });
-    }
-
-    // ---- Open a 1:1 chat and listen for messages in real time ----
-    // Uses Firebase Realtime Database at chats/{room} to match the Android app exactly.
-    let activeRoomRef = null;
-
-    window.openChat = function(otherUid, otherUser){
-      activeContact = { uid: otherUid, ...otherUser };
-      activeChatId = chatIdFor(currentUser.uid, otherUid);
-
-      document.getElementById('emptyState').style.display = 'none';
-      document.getElementById('activeChat').style.display = 'flex';
-      document.getElementById('chatAvatar').innerHTML = avatarInnerHtml(otherUser);
-      document.getElementById('chatName').textContent = otherUser.name || 'Unknown';
-
-      // Reset any open search when switching chats
-      if (window.clearChatSearch) window.clearChatSearch();
-      document.getElementById('chatSearchBar').classList.remove('show');
-
-      // Cancel any pending reply/recording when switching chats
-      cancelReply();
-
-      // Combined presence + typing indicator for the header status line
-      if (otherPresenceRef) off(otherPresenceRef);
-      otherPresenceRef = dbRef(rtdb, "presence/" + otherUid);
-      onValue(otherPresenceRef, (snap) => {
-        const p = snap.val();
-        otherIsOnline = !!(p && p.online);
-        renderChatStatus();
-      });
-      if (otherTypingRef) off(otherTypingRef);
-      otherTypingRef = dbRef(rtdb, "typing/" + activeChatId + "/" + otherUid);
-      onValue(otherTypingRef, (snap) => {
-        otherIsTyping = snap.val() === true;
-        renderChatStatus();
-      });
-
-      document.querySelectorAll('.contact').forEach(c => c.classList.remove('active'));
-      document.getElementById('contact-' + otherUid)?.classList.add('active');
-
-      // Mark this room as "read" now, and hide its unread dot immediately
-      localStorage.setItem(lastReadKey(activeChatId), String(Date.now()));
-      const badge = document.getElementById('unread-' + otherUid);
-      if (badge) badge.style.display = 'none';
-
-      // mobile: hide sidebar, show back button
-      if (window.innerWidth <= 800) document.getElementById('sidebar').classList.add('hide');
-
-      // Stop listening to the previous room, if any
-      if (activeRoomRef) off(activeRoomRef);
-
-      activeRoomRef = dbRef(rtdb, "chats/" + activeChatId);
-
-      // Track when I've read this room (for the other person's read receipts)
-      dbSet(dbRef(rtdb, "chats/" + activeChatId + "_lastRead/" + currentUser.uid), Date.now());
-
-      let lastRenderedEntries = [];
-
-      onValue(activeRoomRef, (snapshot) => {
-        const box = document.getElementById('messages');
-        box.innerHTML = '';
-        const data = snapshot.val() || {};
-        // Sort by timestamp since Realtime Database doesn't guarantee key order for this
-        const entries = Object.entries(data).sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
-        lastRenderedEntries = entries;
-        entries.forEach(([msgId, m]) => {
-          const mine = m.senderId === currentUser.uid;
-          const bubble = document.createElement('div');
-          bubble.className = 'bubble ' + (mine ? 'mine' : 'theirs');
-          bubble.dataset.msgId = msgId;
-          bubble.dataset.rawText = m.message || '';
-          const time = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
-
-          const replyHtml = m.replyTo
-            ? `<div class="reply-quote">${escapeHtml((m.replyTo.text || '').slice(0, 60))}</div>`
-            : '';
-          const editedTag = m.edited ? ' <span style="opacity:.6; font-size:.85em;">(edited)</span>' : '';
-          const ticks = mine ? `<span class="ticks" id="ticks-${msgId}">✓</span>` : '';
-
-          const reactions = m.reactions || {};
-          const reactionCounts = {};
-          Object.values(reactions).forEach(e => { reactionCounts[e] = (reactionCounts[e] || 0) + 1; });
-          const myReaction = reactions[currentUser.uid];
-          const reactionsHtml = Object.keys(reactionCounts).length
-            ? `<div class="reactions-row">` + Object.entries(reactionCounts).map(([emo, count]) =>
-                `<span class="reaction-badge ${emo === myReaction ? 'mine-reacted' : ''}" data-emoji="${emo}">${emo}${count > 1 ? ' ' + count : ''}</span>`
-              ).join('') + `</div>`
-            : '';
-
-          bubble.innerHTML = `
-            <div class="bubble-actions">
-              <span class="bubble-action-btn" data-action="react" title="React">😊</span>
-              <span class="bubble-action-btn" data-action="reply" title="Reply">↩️</span>
-              ${mine ? `<span class="bubble-action-btn" data-action="edit" title="Edit">✏️</span><span class="bubble-action-btn" data-action="delete" title="Delete">🗑️</span>` : ''}
-            </div>
-            <div class="reaction-picker">${reactionEmojis.map(e => `<span data-emoji="${e}">${e}</span>`).join('')}</div>
-            ${replyHtml}${renderMessageContent(m.message)}${editedTag}<span class="time">${time}${ticks}</span>
-            ${reactionsHtml}
-          `;
-          box.appendChild(bubble);
-        });
-        box.scrollTop = box.scrollHeight;
-        wireBubbleActions();
-        refreshReadTicks();
-      }, (err) => {
-        console.error(err);
-      });
-
-      // Real-time read receipts: watch the other person's "lastRead" time and
+// Real-time read receipts: watch the other person's "lastRead" time and
       // mark my sent messages as ✓✓ (read) once it passes each message's timestamp
       let theirLastReadTime = 0;
       onValue(dbRef(rtdb, "chats/" + activeChatId + "_lastRead/" + otherUid), (snap) => {
@@ -1109,8 +1078,7 @@
       preview.querySelector('.reply-preview-text').textContent = replyingTo.text;
       document.getElementById('messageInput').focus();
     }
-
-    function cancelReply(){
+function cancelReply(){
       replyingTo = null;
       document.getElementById('replyPreview').classList.remove('show');
     }
