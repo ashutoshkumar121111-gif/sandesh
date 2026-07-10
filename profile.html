@@ -307,7 +307,8 @@
       }catch(err){
         console.error(err);
         const msgEl = document.getElementById('statusMsg');
-        msgEl.textContent = "Could not load profile. Tap to retry.";
+        const reason = err.code ? `(${err.code})` : (err.message || '');
+        msgEl.textContent = `Could not load profile ${reason} — Tap to retry.`;
         msgEl.style.cursor = 'pointer';
         msgEl.onclick = () => { msgEl.textContent = "Loading profile…"; msgEl.onclick = null; loadProfile(); };
       }
