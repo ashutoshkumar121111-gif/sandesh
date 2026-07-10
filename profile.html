@@ -234,6 +234,7 @@
     import {
       getStorage, ref, uploadBytes, getDownloadURL
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
     // =========================================================
     // 🔧 PASTE YOUR FIREBASE CONFIG HERE — must match login.html / chat.html
     // =========================================================
@@ -262,21 +263,13 @@
     let currentUser = null;
     let currentProfileData = {};
 
-    // ---- Helper: don't let a stuck Firebase call hang the UI forever ----
-    function withTimeout(promise, ms, label){
-      return Promise.race([
-        promise,
-        new Promise((_, reject) => setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms))
-      ]);
-    }
-
     function initials(name){
       return (name || '?').trim().split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
     }
 
     async function loadProfile(){
       try{
-        const snap = await withTimeout(getDoc(doc(db, "users", currentUser.uid)), 10000, "Loading profile");
+        const snap = await getDoc(doc(db, "users", currentUser.uid));
         const data = snap.exists() ? snap.data() : {};
         currentProfileData = data;
 
@@ -288,9 +281,8 @@
 
         const avatarEl = document.getElementById('myAvatar');
         const fallbackEl = document.getElementById('avatarFallback');
-        const myPhoto = data.imageurl || data.photoURL;
-        if (myPhoto){
-          avatarEl.src = myPhoto;
+        if (data.photoURL){
+          avatarEl.src = data.photoURL;
           avatarEl.style.display = 'block';
           fallbackEl.style.display = 'none';
         } else {
@@ -306,24 +298,18 @@
         document.getElementById('backLink').style.display = 'block';
       }catch(err){
         console.error(err);
-        const msgEl = document.getElementById('statusMsg');
-        const reason = err.code ? `(${err.code})` : (err.message || '');
-        msgEl.textContent = `Could not load profile ${reason} — Tap to retry.`;
-        msgEl.style.cursor = 'pointer';
-        msgEl.onclick = () => { msgEl.textContent = "Loading profile…"; msgEl.onclick = null; loadProfile(); };
+        document.getElementById('statusMsg').textContent = "Could not load profile. Check your Firebase config / Firestore rules.";
       }
     }
 
-    if (auth){
-      onAuthStateChanged(auth, (user) => {
-        if (!user){
-          window.location.href = "login.html";
-          return;
-        }
-        currentUser = user;
-        loadProfile();
-      });
-    }
+    onAuthStateChanged(auth, (user) => {
+      if (!user){
+        window.location.href = "login.html";
+        return;
+      }
+      currentUser = user;
+      loadProfile();
+    });
 
     document.getElementById('logoutBtn').onclick = () => signOut(auth).then(()=> window.location.href = "login.html");
 
@@ -333,9 +319,8 @@
       document.getElementById('editUsernameInput').value = currentProfileData.username || '';
       document.getElementById('editPhoneInput').value = currentProfileData.phone || '';
       document.getElementById('editBioInput').value = currentProfileData.bio || '';
-      const existingPhoto = currentProfileData.imageurl || currentProfileData.photoURL;
-      if (existingPhoto){
-        editPhotoPreview.src = existingPhoto;
+      if (currentProfileData.photoURL){
+        editPhotoPreview.src = currentProfileData.photoURL;
         editPhotoPreview.style.display = 'block';
         editPhotoPlaceholder.style.display = 'none';
       } else {
@@ -356,16 +341,15 @@
 
       saveBtn.disabled = true; saveBtn.textContent = "Saving...";
       try{
-        // "imageurl" matches the field name your mobile app uses in Firestore
-        let imageurl = currentProfileData.imageurl || currentProfileData.photoURL || "";
+        let photoURL = currentProfileData.photoURL || "";
         const file = editPhotoInput.files[0];
         if (file){
           const photoRef = ref(storage, `profile_photos/${currentUser.uid}.jpg`);
           await uploadBytes(photoRef, file);
-          imageurl = await getDownloadURL(photoRef);
+          photoURL = await getDownloadURL(photoRef);
         }
-        await setDoc(doc(db, "users", currentUser.uid), { name, username, phone, bio, imageurl }, { merge: true });
-        currentProfileData = { ...currentProfileData, name, username, phone, bio, imageurl };
+        await setDoc(doc(db, "users", currentUser.uid), { name, username, phone, bio, photoURL }, { merge: true });
+        currentProfileData = { ...currentProfileData, name, username, phone, bio, photoURL };
         await loadProfile();
         editModal.classList.remove('open');
       }catch(err){
