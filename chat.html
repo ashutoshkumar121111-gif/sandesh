@@ -900,6 +900,14 @@
     const storage = getStorage(app);
     const rtdb = getDatabase(app);
 
+    // ---- Helper: don't let a stuck Firebase call hang the UI forever ----
+    function withTimeout(promise, ms, label){
+      return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms))
+      ]);
+    }
+
     // ---- Auth guard ----
     onAuthStateChanged(auth, async (user) => {
       if (!user){
@@ -907,8 +915,24 @@
         return;
       }
       currentUser = user;
-      await populateMyProfile();
-      await loadContacts();
+      // Each step now runs independently with a timeout + its own catch, so a
+      // slow/failed network call or Firestore rules issue can't leave the page
+      // stuck on "Loading..." forever — the user always gets feedback.
+      try{
+        await withTimeout(populateMyProfile(), 10000, "Loading your profile");
+      }catch(err){
+        console.error(err);
+        document.getElementById('myName').textContent = 'Could not load profile';
+        document.getElementById('myHandle').textContent = 'Check your connection / Firestore rules';
+      }
+      try{
+        await withTimeout(loadContacts(), 10000, "Loading contacts");
+      }catch(err){
+        console.error(err);
+        const list = document.getElementById('contactList');
+        list.innerHTML = '<div style="padding:20px; color:#c0264a; font-size:.85em;">Could not load contacts. Tap to retry.</div>';
+        list.onclick = () => loadContacts();
+      }
       setupPresence(user.uid);
     });
 
@@ -978,16 +1002,17 @@
     };
 
     async function populateMyProfile(){
-      try{
-        const mySnap = await getDoc(doc(db, "users", currentUser.uid));
-        const myData = mySnap.exists() ? mySnap.data() : null;
-        currentProfileData = myData || {};
-        document.getElementById('myName').textContent = myData?.name || currentUser.displayName || 'Unknown';
-        document.getElementById('myHandle').textContent = '@' + (myData?.username || 'user');
-        const avatarEl = document.getElementById('myAvatar');
-        if (myData?.photoURL){ avatarEl.src = myData.photoURL; avatarEl.style.display = 'block'; }
-        else { avatarEl.style.display = 'none'; }
-      }catch(err){ console.error(err); }
+      // No inner try/catch here on purpose — the caller (onAuthStateChanged)
+      // wraps this in withTimeout() + its own catch, so any failure here
+      // (bad rules, offline, etc.) surfaces to the user instead of hanging.
+      const mySnap = await getDoc(doc(db, "users", currentUser.uid));
+      const myData = mySnap.exists() ? mySnap.data() : null;
+      currentProfileData = myData || {};
+      document.getElementById('myName').textContent = myData?.name || currentUser.displayName || 'Unknown';
+      document.getElementById('myHandle').textContent = '@' + (myData?.username || 'user');
+      const avatarEl = document.getElementById('myAvatar');
+      if (myData?.photoURL){ avatarEl.src = myData.photoURL; avatarEl.style.display = 'block'; }
+      else { avatarEl.style.display = 'none'; }
     }
 
     // ---- Deterministic chat "room" ID — must match the Android app exactly:
