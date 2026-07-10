@@ -94,17 +94,17 @@
         <input type="file" id="signupPhoto" accept="image/*" style="display:none;">
       </div>
       <label>Full Name</label>
-      <input type="text" id="signupName" placeholder="Your name">
+      <input type="text" id="signupName" placeholder="Your name" autocomplete="off">
       <label>Username</label>
-      <input type="text" id="signupUsername" placeholder="e.g. ashu (without @)">
+      <input type="text" id="signupUsername" placeholder="e.g. ashu (without @)" autocomplete="off">
       <label>Phone Number</label>
-      <input type="tel" id="signupPhone" placeholder="e.g. 9876543210">
+      <input type="tel" id="signupPhone" placeholder="e.g. 9876543210" autocomplete="off">
       <label>Date of Birth</label>
-      <input type="date" id="signupDob">
+      <input type="date" id="signupDob" autocomplete="off">
       <label>Email</label>
-      <input type="email" id="signupEmail" placeholder="you@example.com">
+      <input type="email" id="signupEmail" placeholder="you@example.com" autocomplete="new-email" name="signup-email-field">
       <label>Password</label>
-      <input type="password" id="signupPassword" placeholder="Min 6 characters">
+      <input type="password" id="signupPassword" placeholder="Min 6 characters" autocomplete="new-password">
       <button class="btn-primary" id="signupBtn" onclick="doSignup()">Create Account</button>
     </div>
 
@@ -179,7 +179,6 @@
     import {
       getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
       updateProfile, onAuthStateChanged, GoogleAuthProvider, signInWithPopup,
-      signInWithRedirect, getRedirectResult,
       RecaptchaVerifier, signInWithPhoneNumber
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
@@ -266,21 +265,21 @@
         }
 
         btn.textContent = "Creating account...";
-        // Create matching user doc in Firestore (same schema your mobile app uses,
-        // adjust field names below if your app's "users" collection differs)
+        // Create matching user doc in Firestore (same schema your mobile app uses:
+        // photo field is "imageurl" to match the Android app)
         await setDoc(doc(db, "users", cred.user.uid), {
           name: name,
           username: username,
           phone: phone,
           dob: dob,
           email: email,
-          photoURL: photoURL,
+          imageurl: photoURL,
           online: true,
           createdAt: serverTimestamp()
         });
         window.location.href = "chat.html";
       }catch(err){
-        showError(friendlyError(err.code));
+        showError(friendlyError(err.code) + " (Email used: " + email + ")");
       }finally{
         btn.disabled = false; btn.textContent = "Create Account";
       }
@@ -307,33 +306,17 @@
           name: user.displayName || "New User",
           username: (user.email || "user").split('@')[0],
           email: user.email || "",
-          photoURL: user.photoURL || "",
+          imageurl: user.photoURL || "",
           online: true,
           createdAt: serverTimestamp()
         });
       }
     }
 
-    function isMobileBrowser(){
-      return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    }
-
     window.doGoogleLogin = async function(){
       hideError();
       if (!firebaseReady){ showError("⚠️ Firebase isn't connected yet. Paste your config in login.html first."); return; }
       const provider = new GoogleAuthProvider();
-
-      // Mobile browsers frequently block sign-in popups — redirect is far more reliable there.
-      if (isMobileBrowser()){
-        try{
-          await signInWithRedirect(auth, provider);
-          // Page will reload; getRedirectResult() below handles the rest after redirect back.
-        }catch(err){
-          console.error(err);
-          showError("Could not start Google sign-in. Please try again.");
-        }
-        return;
-      }
 
       const btn = document.getElementById('googleBtn');
       btn.disabled = true;
@@ -343,7 +326,7 @@
         window.location.href = "chat.html";
       }catch(err){
         console.error(err);
-        showError("Google sign-in failed. Please try again, or use email/phone login instead.");
+        showError("Google sign-in failed (" + (err.code || "unknown") + "). Please try again.");
       }finally{
         btn.disabled = false;
       }
@@ -396,7 +379,7 @@
             name: "New User",
             username: "user" + user.uid.slice(0, 5),
             phone: user.phoneNumber || "",
-            photoURL: "",
+            imageurl: "",
             online: true,
             createdAt: serverTimestamp()
           });
@@ -410,26 +393,11 @@
       }
     };
 
-    // Handle the return from Google redirect sign-in (mobile flow), then
-    // fall back to the normal "already logged in" check.
+    // If already logged in, skip straight to chat
     if (firebaseReady){
-      (async () => {
-        try{
-          const redirectResult = await getRedirectResult(auth);
-          if (redirectResult && redirectResult.user){
-            await saveGoogleUserDoc(redirectResult.user);
-            window.location.href = "chat.html";
-            return;
-          }
-        }catch(err){
-          console.error(err);
-          showError("Google sign-in failed. Please try again, or use email/phone login instead.");
-        }
-
-        onAuthStateChanged(auth, (user) => {
-          if (user) window.location.href = "chat.html";
-        });
-      })();
+      onAuthStateChanged(auth, (user) => {
+        if (user) window.location.href = "chat.html";
+      });
     }
   </script>
 </body>
