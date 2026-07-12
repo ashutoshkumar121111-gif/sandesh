@@ -1202,7 +1202,7 @@
         entries.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
         const last = entries[entries.length - 1];
 
-        const isMedia = /firebasestorage\.googleapis\.com|\.firebasestorage\.app/i.test(last.message || '');
+        const isMedia = /firebasestorage\.googleapis\.com|\.firebasestorage\.app|res\.cloudinary\.com/i.test(last.message || '');
         const isAudio = /\.(webm|ogg|mp3|wav|m4a)(\?|$)/i.test(last.message || '');
         const preview = isMedia ? (isAudio ? '🎤 Voice message' : '📷 Photo/Video') : (last.message || '');
 
@@ -1533,7 +1533,7 @@
     // uploaded via the attach button (or the Android app) and renders it inline.
     function renderMessageContent(message){
       const text = message || '';
-      const isStorageUrl = /firebasestorage\.googleapis\.com|\.firebasestorage\.app/i.test(text);
+      const isStorageUrl = /firebasestorage\.googleapis\.com|\.firebasestorage\.app|res\.cloudinary\.com/i.test(text);
       const looksLikeVideo = /\.mp4(\?|$)/i.test(text);
       const looksLikeImage = /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(text);
       const looksLikeAudio = /\.(webm|ogg|mp3|wav|m4a)(\?|$)/i.test(text);
@@ -1576,23 +1576,39 @@
       }
     };
 
-    // ---- Send a photo/video (matches the Android app's chat_media/ upload flow) ----
+    // ---- Cloudinary config (used instead of Firebase Storage, which needs Blaze plan) ----
+    const CLOUDINARY_CLOUD_NAME = "d27yztsu";
+    const CLOUDINARY_UPLOAD_PRESET = "sandesh_chat";
+
+    async function uploadToCloudinary(file){
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+      const resourceType = file.type.startsWith('video') ? 'video' : 'image';
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`,
+        { method: 'POST', body: formData }
+      );
+      if (!response.ok){
+        const errText = await response.text();
+        throw new Error("Cloudinary upload failed: " + errText);
+      }
+      const data = await response.json();
+      return data.secure_url;
+    }
+
+    // ---- Send a photo/video (now via Cloudinary instead of Firebase Storage) ----
     document.getElementById('mediaInput').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       e.target.value = ''; // reset so picking the same file again still fires 'change'
       if (!file || !activeChatId) return;
 
       try{
+        const downloadUrl = await uploadToCloudinary(file);
+
         const roomRef = dbRef(rtdb, "chats/" + activeChatId);
         const newMsgRef = push(roomRef);
-        const key = newMsgRef.key;
-
-        const ext = file.type.startsWith('video') ? '.mp4' : '.jpg';
-        const fileName = key + "_" + Date.now() + ext;
-        const mediaRef = ref(storage, "chat_media/" + fileName);
-
-        await uploadBytes(mediaRef, file);
-        const downloadUrl = await getDownloadURL(mediaRef);
 
         // The Android app stores the media URL directly in the "message" field —
         // the receiving side detects it's a link and renders it as an image/video.
@@ -1603,7 +1619,7 @@
         });
       }catch(err){
         console.error(err);
-        alert("Could not send media. Check your Firebase Storage rules.");
+        alert("Could not send media. Check your internet connection or Cloudinary preset.");
       }
     });
 
